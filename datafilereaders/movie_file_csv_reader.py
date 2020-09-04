@@ -37,17 +37,50 @@ class MovieFileCSVReader:
 
             for row in movie_file_reader:
                 title = row['Title']
-                release_year = int(row['Year'])
+
+                try:
+                    release_year = int(row['Year'])
+                except ValueError:
+                    release_year = None
+
                 description = row['Description']
                 director = Director(row['Director'])
                 actors = [Actor(full_name) for full_name in row['Actors'].split(',')]
                 genres = [Genre(genre_name) for genre_name in row['Genre'].split(',')]
-                runtime_minutes = int(row['Runtime (Minutes)'])
+
+                try:
+                    runtime_minutes = int(row['Runtime (Minutes)'])
+                except ValueError:
+                    runtime_minutes = None
+
+                try:
+                    external_rating = float(row['Rating'])
+                except ValueError:
+                    external_rating = None
+
+                try:
+                    rating_votes = int(row['Votes'])
+                except ValueError:
+                    rating_votes = None
+
+                try:
+                    revenue_millions = float(row['Revenue (Millions)'])
+                except ValueError:
+                    revenue_millions = None
+
+                try:
+                    metascore = int(row['Metascore'])
+                except ValueError:
+                    metascore = None
 
                 movie = Movie(title, release_year)
                 movie.description = description
                 movie.director = director
                 movie.runtime_minutes = runtime_minutes
+                movie.external_rating = external_rating
+                movie.rating_votes = rating_votes
+                movie.revenue_millions = revenue_millions
+                movie.metascore = metascore
 
                 for actor in actors:
                     movie.add_actor(actor)

@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Iterable
 from domainmodel.movie import Movie
-from domainmodel.review import Review
+import domainmodel.review as rev_mod
 
 
 class User:
@@ -17,7 +17,7 @@ class User:
             self.__password = None
 
         self.__watched_movies: List['Movie'] = list()
-        self.__reviews: List['Review'] = list()
+        self.__reviews: List['rev_mod.Review'] = list()
         self.__time_spent_watching_movies_minutes: int = 0
 
     @property
@@ -29,12 +29,12 @@ class User:
         return self.__password
 
     @property
-    def watched_movies(self) -> List['Movie']:
-        return self.__watched_movies
+    def watched_movies(self) -> Iterable['Movie']:
+        return iter(self.__watched_movies)
 
     @property
-    def reviews(self) -> List['Review']:
-        return self.__reviews
+    def reviews(self) -> Iterable['rev_mod.Review']:
+        return iter(self.__reviews)
 
     @property
     def time_spent_watching_movies_minutes(self) -> int:
@@ -59,12 +59,13 @@ class User:
         return hash(self.__user_name)
 
     def watch_movie(self, movie: 'Movie'):
-        if isinstance(movie, Movie) and movie not in self.__watched_movies and \
-                movie.title is not None and movie.runtime_minutes is not None:
-            self.__watched_movies.append(movie)
+        if isinstance(movie, Movie) and movie.title is not None and movie.runtime_minutes is not None:
+            if movie not in self.__watched_movies:
+                self.__watched_movies.append(movie)
             self.__time_spent_watching_movies_minutes += movie.runtime_minutes
 
-    def add_review(self, review: 'Review'):
-        if isinstance(review, Review) and review not in self.__reviews and \
-                review.movie is not None and review.rating is not None:
+    def add_review(self, review: 'rev_mod.Review'):
+        if isinstance(review, rev_mod.Review) and review not in self.__reviews and \
+                review.movie is not None and review.rating is not None and review.user is None:
             self.__reviews.append(review)
+            review.user = self

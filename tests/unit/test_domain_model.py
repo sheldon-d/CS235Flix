@@ -176,8 +176,8 @@ def test_actor_colleagues(director, actor, actor_invalid):
         actor.add_actor_colleague(actor_x)
 
     assert actor.check_if_this_actor_worked_with(actor) is False
-    assert actor.check_if_this_actor_worked_with(actor_invalid) is True
-    assert actor.check_if_this_actor_worked_with(actors[2]) is True
+    assert actor.check_if_this_actor_worked_with(actor_invalid) is False
+    assert actor.check_if_this_actor_worked_with(actors[2]) is False
     assert actor.check_if_this_actor_worked_with(actors[3]) is True
     assert actor.check_if_this_actor_worked_with(actors[4]) is False
     assert actor.check_if_this_actor_worked_with(director) is False
@@ -328,7 +328,7 @@ def test_movie_hash(movie, movie_invalid):
     assert hash(movie) != hash(movies[3])
 
 
-def test_review(movie, review, movie_invalid, review_invalid):
+def test_review_constructor(movie, review, movie_invalid, review_invalid):
     assert repr(review) == "<Review Moana, 8>"
     assert repr(review_invalid) == "<Review None, None>"
     assert review.movie == movie
@@ -343,33 +343,15 @@ def test_review(movie, review, movie_invalid, review_invalid):
     assert review3.review_text is None
     assert review3.rating is None
 
-    assert review == review
-    assert review != review_invalid
-    assert review_invalid == review_invalid
 
-    movie1 = Movie("Jaws", 1975)
-    review_text1 = "This movie was very exciting."
-    rating1 = 10
-    review1 = Review(movie1, review_text1, rating1)
-    assert review != review1
+def test_review_eq():
+    movies = [Movie("Jaws", 1975), Movie("Moana", 2016), Movie("Moana", 2016)]
+    review_texts = ["This movie was very exciting.", "This movie was very entertaining.", "      "]
+    ratings = [10, 8, 5]
+    reviews = [Review(movies[i], review_texts[i], ratings[i]) for i in range(len(movies))]
 
-    movie2 = Movie("Moana", 2016)
-    review_text2 = "This movie was very entertaining."
-    rating2 = 8
-    review2 = Review(movie2, review_text2, rating2)
-    assert review != review2
-
-    movie3 = Movie(0, 0)
-    rating3 = 10.0
-    review_text3 = "                               "
-    review3 = Review(movie3, review_text3, rating3)
-    assert review != review3
-
-    # movie4 = Movie("Moana", 2016)
-    # review_text4 = "This movie was very enjoyable."
-    # rating4 = 8
-    # review4 = Review(movie4, review_text4, rating4)
-    # assert review.timestamp != review4.timestamp
+    assert reviews[0] != reviews[1]
+    assert reviews[1] != reviews[2]
 
 
 def test_user_constructor(user, user_invalid):
@@ -422,10 +404,10 @@ def test_user_watch_movie(movie, user, movie_invalid, user_invalid):
     user_invalid.watch_movie(movie3)
     user_invalid.watch_movie(movie3)
 
-    assert user.time_spent_watching_movies_minutes == 260
-    assert len(user.watched_movies) == 2
-    assert user_invalid.time_spent_watching_movies_minutes == 140
-    assert len(user_invalid.watched_movies) == 1
+    assert user.time_spent_watching_movies_minutes == 380
+    assert sum(1 for _ in user.watched_movies) == 2
+    assert user_invalid.time_spent_watching_movies_minutes == 280
+    assert sum(1 for _ in user_invalid.watched_movies) == 1
 
 
 def test_user_add_review(review, user, review_invalid, user_invalid):
@@ -433,16 +415,22 @@ def test_user_add_review(review, user, review_invalid, user_invalid):
     review_text1 = "This movie was very exciting."
     rating1 = 10
     review1 = Review(movie1, review_text1, rating1)
+    review2 = Review(movie1, 'Nice movie.', 11)
+    review3 = Review(0, 'Boring movie.', 1)
 
     user.add_review(review)
     user.add_review(review1)
     user_invalid.add_review(review_invalid)
     user_invalid.add_review(review1)
+    user_invalid.add_review(review2)
+    user_invalid.add_review(review3)
 
     assert review in user.reviews
     assert review1 in user.reviews
     assert review_invalid not in user_invalid.reviews
-    assert review1 in user_invalid.reviews  # TODO implement user attribute in review class so this is false
+    assert review1 not in user_invalid.reviews
+    assert review2 not in user_invalid.reviews
+    assert review3 not in user_invalid.reviews
 
 
 def test_watchlist_constructor(watchlist):

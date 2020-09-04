@@ -33,7 +33,8 @@ class Actor:
         return hash(self.__actor_full_name)
 
     def add_actor_colleague(self, colleague: 'Actor'):
-        if isinstance(colleague, Actor) and colleague not in self.__colleagues and hash(self) != hash(colleague):
+        if isinstance(colleague, Actor) and colleague not in self.__colleagues and self != colleague and \
+                colleague.__actor_full_name is not None:
             self.__colleagues.append(colleague)
 
     def check_if_this_actor_worked_with(self, colleague: 'Actor'):

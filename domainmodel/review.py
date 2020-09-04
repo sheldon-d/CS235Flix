@@ -1,6 +1,6 @@
 from datetime import datetime
 from domainmodel.movie import Movie
-# from domainmodel.user import User
+import domainmodel.user as usr_mod
 
 
 class Review:
@@ -40,14 +40,14 @@ class Review:
     def timestamp(self) -> datetime:
         return self.__timestamp
 
-    # @property
-    # def user(self) -> 'User':
-    #     return self.__user
-    #
-    # @user.setter
-    # def user(self, user: 'User'):
-    #     if isinstance(user, User) and user.user_name is not None:
-    #         self.__user = user
+    @property
+    def user(self) -> 'usr_mod.User':
+        return self.__user
+
+    @user.setter
+    def user(self, user: 'usr_mod.User'):
+        if isinstance(user, usr_mod.User) and user.user_name is not None and self.__user is None:
+            self.__user = user
 
     def __repr__(self) -> str:
         return f"<Review {self.__movie.title}, {self.__rating}>"
@@ -55,5 +55,5 @@ class Review:
     def __eq__(self, other) -> bool:
         if not isinstance(other, Review):
             return False
-        return self.__movie == other.__movie and self.__review_text == other.__review_text and \
-               self.__rating == other.__rating and self.__timestamp == other.__timestamp
+        return (self.__movie == other.__movie and self.__review_text == other.__review_text and
+                self.__rating == other.__rating and self.__timestamp == other.__timestamp)
