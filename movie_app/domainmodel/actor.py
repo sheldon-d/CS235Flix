@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Iterable
 
 
 class Actor:
@@ -13,6 +13,10 @@ class Actor:
     @property
     def actor_full_name(self) -> str:
         return self.__actor_full_name
+
+    @property
+    def colleagues(self) -> Iterable['Actor']:
+        return iter(self.__colleagues)
 
     def __repr__(self) -> str:
         return f"<Actor {self.__actor_full_name}>"

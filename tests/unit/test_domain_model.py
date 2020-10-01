@@ -1,10 +1,10 @@
-from domainmodel.actor import Actor
-from domainmodel.director import Director
-from domainmodel.genre import Genre
-from domainmodel.movie import Movie
-from domainmodel.review import Review
-from domainmodel.user import User
-from domainmodel.watchlist import WatchList
+from movie_app.domainmodel.actor import Actor
+from movie_app.domainmodel.director import Director
+from movie_app.domainmodel.genre import Genre
+from movie_app.domainmodel.movie import Movie
+from movie_app.domainmodel.review import Review
+from movie_app.domainmodel.user import User
+from movie_app.domainmodel.watchlist import WatchList
 
 import pytest
 

@@ -1,9 +1,7 @@
-from activitysimulations.watchingsimulation import MovieWatchingSimulation
-from datafilereaders.movie_file_csv_reader import MovieFileCSVReader
-from domainmodel.movie import Movie
-from domainmodel.review import Review
-from domainmodel.user import User
-from pathlib import Path
+from movie_app.activitysimulations.watchingsimulation import MovieWatchingSimulation
+from movie_app.domainmodel.movie import Movie
+from movie_app.domainmodel.review import Review
+from movie_app.domainmodel.user import User
 
 import pytest
 
@@ -11,12 +9,6 @@ import pytest
 @pytest.fixture()
 def movie():
     return Movie("Guardians of the Galaxy", 2014)
-
-
-@pytest.fixture()
-def movie_file_reader():
-    path = str(Path.cwd().joinpath('datafiles', 'Data1000Movies.csv'))
-    return MovieFileCSVReader(path)
 
 
 @pytest.fixture()
@@ -163,6 +155,30 @@ def test_user_review_relationship(user, review):
     assert review.user == user
 
 
+def test_movie_review_relationship(movie, review, user):
+    movie.add_review(review)
+    assert review not in movie.reviews
+    user.add_review(review)
+    assert review in user.reviews
+    assert review in movie.reviews
+    assert review.movie == movie
+    movie.add_review(review)
+
+    movie2 = Movie('Batman', 1989)
+    movie2.add_review(review)
+    assert review not in movie2.reviews
+    assert review.movie == movie
+
+    user.remove_review(review)
+    assert review not in user.reviews
+    assert review not in movie.reviews
+    movie.remove_review(review)
+    user2 = User('Ian', 'pw67890')
+    user2.add_review(review)
+    assert review not in user2.reviews
+    assert review.user == user
+
+
 def test_watching_simulation_constructor(movie_all_attributes, watching_simulation):
     assert watching_simulation.movie == movie_all_attributes
     assert sum(1 for _ in watching_simulation.users) == 0
@@ -215,7 +231,7 @@ def test_watching_simulation_movies(watching_simulation):
 
     assert watching_simulation.movie in user4.watched_movies
     assert user4.time_spent_watching_movies_minutes == watching_simulation.movie.runtime_minutes
-    assert sum(1 for _ in user.watched_movies) == 1
+    assert sum(1 for _ in user4.watched_movies) == 1
 
 
 def test_watching_simulation_reviews(watching_simulation):
@@ -246,9 +262,10 @@ def test_watching_simulation_reviews(watching_simulation):
         review = reviews[i]
         watching_simulation.add_user_review(user, review)
 
-    assert reviews[0] in watching_simulation.reviews and reviews[0] in users[0].reviews
-    assert reviews[1] not in watching_simulation.reviews and reviews[1] not in users[1].reviews
-    assert reviews[2] in watching_simulation.reviews and reviews[2] in users[2].reviews
+    assert reviews[0] in watching_simulation.reviews and reviews[0] in users[0].reviews and reviews[0] in movie.reviews
+    assert reviews[1] not in watching_simulation.reviews and reviews[1] not in users[1].reviews \
+           and reviews[1] not in movie.reviews
+    assert reviews[2] in watching_simulation.reviews and reviews[2] in users[2].reviews and reviews[2] in movie.reviews
 
     movie = Movie('Moana', 2016)
     review = Review(movie, 'Fun', 9)
@@ -260,7 +277,11 @@ def test_watching_simulation_reviews(watching_simulation):
     review = Review(watching_simulation.movie, 'Fun', 9)
     watching_simulation.add_user_review(user4, review)
 
-    assert review in watching_simulation.reviews and review in user4.reviews
+    assert review in watching_simulation.reviews and review in user4.reviews and \
+           review in watching_simulation.movie.reviews
+    watching_simulation.remove_user_review(review)
+    assert review not in watching_simulation.reviews and review not in user4.reviews and \
+        review not in watching_simulation.movie.reviews
 
     user5 = User('Tom', 'pw15567')
     user5.watch_movie(watching_simulation.movie)
@@ -268,9 +289,3 @@ def test_watching_simulation_reviews(watching_simulation):
     watching_simulation.add_user_review(user5, review)
 
     assert review not in watching_simulation.reviews
-
-
-
-
-
-

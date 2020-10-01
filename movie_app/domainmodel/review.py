@@ -1,11 +1,15 @@
 from datetime import datetime
-from domainmodel.movie import Movie
-import domainmodel.user as usr_mod
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from movie_app.domainmodel.movie import Movie
+    from movie_app.domainmodel.user import User
 
 
 class Review:
 
     def __init__(self, movie: 'Movie', review_text: str, rating: int):
+        from movie_app.domainmodel.movie import Movie
         if isinstance(movie, Movie):
             self.__movie = movie
         else:
@@ -23,6 +27,7 @@ class Review:
 
         self.__timestamp: datetime = datetime.today()
         self.__user = None
+        self.__id = id(self)
 
     @property
     def movie(self) -> 'Movie':
@@ -41,13 +46,18 @@ class Review:
         return self.__timestamp
 
     @property
-    def user(self) -> 'usr_mod.User':
+    def user(self) -> 'User':
         return self.__user
 
     @user.setter
-    def user(self, user: 'usr_mod.User'):
-        if isinstance(user, usr_mod.User) and user.user_name is not None and self.__user is None:
+    def user(self, user: 'User'):
+        from movie_app.domainmodel.user import User
+        if isinstance(user, User) and user.user_name is not None and self.__user is None:
             self.__user = user
+
+    @property
+    def id(self) -> int:
+        return self.__id
 
     def __repr__(self) -> str:
         return f"<Review {self.__movie.title}, {self.__rating}>"

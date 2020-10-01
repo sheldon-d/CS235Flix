@@ -1,34 +1,34 @@
 import csv
 from typing import List
-from domainmodel.movie import Movie
-from domainmodel.actor import Actor
-from domainmodel.genre import Genre
-from domainmodel.director import Director
+from movie_app.domainmodel.movie import Movie
+from movie_app.domainmodel.actor import Actor
+from movie_app.domainmodel.genre import Genre
+from movie_app.domainmodel.director import Director
 
 
 class MovieFileCSVReader:
 
     def __init__(self, file_name: str):
         self.__file_name = file_name
-        self.__dataset_of_movies: List['Movie'] = list()
-        self.__dataset_of_actors: List['Actor'] = list()
-        self.__dataset_of_directors: List['Director'] = list()
-        self.__dataset_of_genres: List['Genre'] = list()
+        self.__dataset_of_movies: List[Movie] = list()
+        self.__dataset_of_actors: List[Actor] = list()
+        self.__dataset_of_directors: List[Director] = list()
+        self.__dataset_of_genres: List[Genre] = list()
 
     @property
-    def dataset_of_movies(self) -> List['Movie']:
+    def dataset_of_movies(self) -> List[Movie]:
         return self.__dataset_of_movies
 
     @property
-    def dataset_of_actors(self) -> List['Actor']:
+    def dataset_of_actors(self) -> List[Actor]:
         return self.__dataset_of_actors
 
     @property
-    def dataset_of_directors(self) -> List['Director']:
+    def dataset_of_directors(self) -> List[Director]:
         return self.__dataset_of_directors
 
     @property
-    def dataset_of_genres(self) -> List['Genre']:
+    def dataset_of_genres(self) -> List[Genre]:
         return self.__dataset_of_genres
 
     def read_csv_file(self):
@@ -83,9 +83,17 @@ class MovieFileCSVReader:
                 movie.metascore = metascore
 
                 for actor in actors:
-                    movie.add_actor(actor)
+                    colleagues = [c for c in actors if not actor.check_if_this_actor_worked_with(c) and c is not actor]
+
                     if actor not in self.__dataset_of_actors and actor.actor_full_name is not None:
+                        for colleague in colleagues:
+                            actor.add_actor_colleague(colleague)
                         self.__dataset_of_actors.append(actor)
+                    elif actor in self.__dataset_of_actors:
+                        pos = self.__dataset_of_actors.index(actor)
+                        for colleague in colleagues:
+                            self.__dataset_of_actors[pos].add_actor_colleague(colleague)
+                    movie.add_actor(actor)
 
                 if director not in self.__dataset_of_directors and director.director_full_name is not None:
                     self.__dataset_of_directors.append(director)
