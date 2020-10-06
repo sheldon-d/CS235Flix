@@ -1,6 +1,7 @@
 from typing import List, Iterable
 from movie_app.domainmodel.movie import Movie
 from movie_app.domainmodel.review import Review
+from movie_app.domainmodel.watchlist import WatchList
 
 
 class User:
@@ -16,9 +17,22 @@ class User:
         else:
             self.__password = None
 
+        self.__id = None
         self.__watched_movies: List[Movie] = list()
         self.__reviews: List[Review] = list()
         self.__time_spent_watching_movies_minutes: int = 0
+        self.__watchlist: WatchList = WatchList()
+
+        self.__watchlist.user = self
+
+    @property
+    def id(self) -> int:
+        return self.__id
+
+    @id.setter
+    def id(self, user_id: int):
+        if isinstance(user_id, int) and user_id > 0 and self.__id is None:
+            self.__id = user_id
 
     @property
     def user_name(self) -> str:
@@ -39,6 +53,10 @@ class User:
     @property
     def time_spent_watching_movies_minutes(self) -> int:
         return self.__time_spent_watching_movies_minutes
+
+    @property
+    def watchlist(self) -> WatchList:
+        return self.__watchlist
 
     def __repr__(self) -> str:
         return f"<User {self.__user_name}>"
@@ -63,6 +81,13 @@ class User:
             if movie not in self.__watched_movies:
                 self.__watched_movies.append(movie)
             self.__time_spent_watching_movies_minutes += movie.runtime_minutes
+
+    def remove_watched_movie(self, movie: Movie):
+        if movie in self.__watched_movies:
+            self.__watched_movies.remove(movie)
+
+            if self.__time_spent_watching_movies_minutes >= movie.runtime_minutes:
+                self.__time_spent_watching_movies_minutes -= movie.runtime_minutes
 
     def add_review(self, review: Review):
         if isinstance(review, Review) and review not in self.__reviews and \

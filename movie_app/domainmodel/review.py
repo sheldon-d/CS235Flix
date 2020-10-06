@@ -37,9 +37,19 @@ class Review:
     def review_text(self) -> str:
         return self.__review_text
 
+    @review_text.setter
+    def review_text(self, review_text: str):
+        if isinstance(review_text, str) and review_text.strip() != "":
+            self.__review_text = review_text.strip()
+
     @property
     def rating(self) -> int:
         return self.__rating
+
+    @rating.setter
+    def rating(self, rating: int):
+        if isinstance(rating, int) and 1 <= rating <= 10:
+            self.__rating = rating
 
     @property
     def timestamp(self) -> datetime:
@@ -66,4 +76,8 @@ class Review:
         if not isinstance(other, Review):
             return False
         return (self.__movie == other.__movie and self.__review_text == other.__review_text and
-                self.__rating == other.__rating and self.__timestamp == other.__timestamp)
+                self.__rating == other.__rating and self.__timestamp == other.__timestamp and
+                self.__user == other.__user)
+
+    def __hash__(self):
+        return hash((self.__movie, self.__timestamp, self.__user))

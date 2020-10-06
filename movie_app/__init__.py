@@ -11,6 +11,6 @@ def create_app(test_config=None):
 
     # Configure the app from configuration-file settings.
     app.config.from_object('config.Config')
-    data_path = os.path.join('adapters/datafiles')
+    data_path = os.path.join('movie_app', 'adapters', 'datafiles')
 
     return app

@@ -1,10 +1,4 @@
-from movie_app.domainmodel.actor import Actor
-from movie_app.domainmodel.director import Director
-from movie_app.domainmodel.genre import Genre
-from movie_app.domainmodel.movie import Movie
-from movie_app.domainmodel.review import Review
-from movie_app.domainmodel.user import User
-from movie_app.domainmodel.watchlist import WatchList
+from movie_app.domainmodel import Actor, Director, Genre, Movie, Review, User, WatchList
 
 import pytest
 
@@ -209,7 +203,7 @@ def test_movie_add_actors(director, actor, movie, actor_invalid, movie_invalid):
     actors = [Actor("Auli'i Cravalho"), Actor("Dwayne Johnson"), Actor("Rachel House"), Actor("Temuera Morrison")]
     for actor_x in actors:
         movie.add_actor(actor_x)
-    assert movie.actors == actors
+    assert [actor for actor in movie.actors] == actors
 
     actors = [actor, actor_invalid, director, actor]
     for actor_x in actors:
@@ -217,30 +211,30 @@ def test_movie_add_actors(director, actor, movie, actor_invalid, movie_invalid):
 
     assert actor_invalid not in movie_invalid.actors
     assert director not in movie_invalid.actors
-    assert len(movie_invalid.actors) == 1
+    assert sum(1 for _ in movie_invalid.actors) == 1
 
 
 def test_movie_remove_actors(director, actor, movie, actor_invalid):
     actors = [Actor("Auli'i Cravalho"), Actor("Dwayne Johnson"), Actor("Rachel House"), Actor("Temuera Morrison")]
     for actor_x in actors:
         movie.add_actor(actor_x)
-    assert movie.actors == actors
+    assert [actor for actor in movie.actors] == actors
 
     movie.remove_actor(actor)
-    assert movie.actors == actors
+    assert [actor for actor in movie.actors] == actors
     movie.remove_actor(actor_invalid)
-    assert movie.actors == actors
+    assert [actor for actor in movie.actors] == actors
     movie.remove_actor(actors[0])
-    assert actors[0] not in movie.actors and movie.actors != actors
+    assert actors[0] not in movie.actors and [actor for actor in movie.actors] != actors
     movie.remove_actor(director)
-    assert len(movie.actors) == 3
+    assert sum(1 for _ in movie.actors) == 3
 
 
 def test_movie_add_genres(director, genre, movie, genre_invalid, movie_invalid):
     genres = [Genre("Action"), Genre("Romance"), Genre("Horror"), Genre("Mystery")]
     for genre_x in genres:
         movie.add_genre(genre_x)
-    assert movie.genres == genres
+    assert [genre for genre in movie.genres] == genres
 
     genres = [genre, genre_invalid, director, genre]
     for genre_x in genres:
@@ -248,23 +242,23 @@ def test_movie_add_genres(director, genre, movie, genre_invalid, movie_invalid):
 
     assert genre_invalid not in movie_invalid.genres
     assert director not in movie_invalid.genres
-    assert len(movie_invalid.genres) == 1
+    assert sum(1 for _ in movie_invalid.genres) == 1
 
 
 def test_movie_remove_genres(director, genre, movie, genre_invalid):
     genres = [Genre("Action"), Genre("Romance"), Genre("Horror"), Genre("Mystery")]
     for genre_x in genres:
         movie.add_genre(genre_x)
-    assert movie.genres == genres
+    assert [genre for genre in movie.genres] == genres
 
     movie.remove_genre(genre)
-    assert movie.genres == genres
+    assert [genre for genre in movie.genres] == genres
     movie.remove_genre(genre_invalid)
-    assert movie.genres == genres
+    assert [genre for genre in movie.genres] == genres
     movie.remove_genre(genres[3])
-    assert genres[3] not in movie.genres and movie.genres != genres
+    assert genres[3] not in movie.genres and [genre for genre in movie.genres] != genres
     movie.remove_genre(director)
-    assert len(movie.genres) == 3
+    assert sum(1 for _ in movie.genres) == 3
 
 
 def test_movie_runtime(movie, movie_invalid):

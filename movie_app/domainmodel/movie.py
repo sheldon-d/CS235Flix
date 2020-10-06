@@ -18,6 +18,7 @@ class Movie:
         else:
             self.__release_year = None
 
+        self.__rank = None
         self.__description = None
         self.__director: Director = Director(str())
         self.__actors: List[Actor] = list()
@@ -38,6 +39,15 @@ class Movie:
         return self.__release_year
 
     @property
+    def rank(self) -> int:
+        return self.__rank
+
+    @rank.setter
+    def rank(self, rank: int):
+        if isinstance(rank, int) and rank > 0 and self.__rank is None:
+            self.__rank = rank
+
+    @property
     def description(self) -> str:
         return self.__description
 
@@ -56,12 +66,12 @@ class Movie:
             self.__director = director
 
     @property
-    def actors(self) -> List[Actor]:
-        return self.__actors
+    def actors(self) -> Iterable[Actor]:
+        return iter(self.__actors)
 
     @property
-    def genres(self) -> List[Genre]:
-        return self.__genres
+    def genres(self) -> Iterable[Genre]:
+        return iter(self.__genres)
 
     @property
     def runtime_minutes(self) -> int:

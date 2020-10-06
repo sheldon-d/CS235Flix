@@ -14,6 +14,7 @@ class MovieWatchingSimulation:
 
         self.__users: List[User] = list()
         self.__reviews: List[Review] = list()
+        self.__id = id(self)
 
     @property
     def movie(self) -> Movie:
@@ -26,6 +27,21 @@ class MovieWatchingSimulation:
     @property
     def reviews(self) -> Iterable[Review]:
         return iter(self.__reviews)
+
+    @property
+    def id(self) -> int:
+        return self.__id
+
+    def __repr__(self) -> str:
+        return f"<MovieWatchingSimulation {self.__movie}>"
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, MovieWatchingSimulation):
+            return False
+        return self.__movie == other.__movie and self.__users == other.__users and self.__reviews == other.__reviews
+
+    def __hash__(self):
+        return hash((self.__movie, self.__id))
 
     def add_user(self, user: User):
         if isinstance(user, User) and user not in self.__users and user.user_name is not None:

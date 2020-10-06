@@ -1,12 +1,26 @@
-from typing import List
+from typing import List, TYPE_CHECKING
 from movie_app.domainmodel.movie import Movie
+
+if TYPE_CHECKING:
+    from movie_app.domainmodel.user import User
 
 
 class WatchList:
 
     def __init__(self):
         self.__watch_list: List[Movie] = list()
+        self.__user = None
         self.__id = id(self)
+
+    @property
+    def user(self) -> 'User':
+        return self.__user
+
+    @user.setter
+    def user(self, user: 'User'):
+        from movie_app.domainmodel.user import User
+        if isinstance(user, User) and user.user_name is not None and self.__user is None:
+            self.__user = user
 
     @property
     def id(self) -> int:
@@ -42,3 +56,11 @@ class WatchList:
             return current
         else:
             raise StopIteration
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, WatchList):
+            return False
+        return self.__watch_list == other.__watch_list and self.__user == other.__user
+
+    def __hash__(self):
+        return hash((self.__user, self.__id))

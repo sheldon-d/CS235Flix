@@ -1,7 +1,5 @@
-from movie_app.activitysimulations.watchingsimulation import MovieWatchingSimulation
-from movie_app.domainmodel.movie import Movie
-from movie_app.domainmodel.review import Review
-from movie_app.domainmodel.user import User
+from movie_app.activitysimulations import MovieWatchingSimulation
+from movie_app.domainmodel import Movie, Review, User
 
 import pytest
 
@@ -12,15 +10,13 @@ def movie():
 
 
 @pytest.fixture()
-def movie_all_attributes(movie_file_reader):
-    movie_file_reader.read_csv_file()
-    return movie_file_reader.dataset_of_movies[0]
+def movie_all_attributes(dataset_of_movies_prod):
+    return next((movie for movie in dataset_of_movies_prod if movie.rank == 1), None)
 
 
 @pytest.fixture()
-def movie_missing_attributes(movie_file_reader):
-    movie_file_reader.read_csv_file()
-    return movie_file_reader.dataset_of_movies[39]
+def movie_missing_attributes(dataset_of_movies_prod):
+    return next((movie for movie in dataset_of_movies_prod if movie.rank == 40), None)
 
 
 @pytest.fixture()
@@ -38,6 +34,22 @@ def user():
 @pytest.fixture()
 def watching_simulation(movie_all_attributes):
     return MovieWatchingSimulation(movie_all_attributes)
+
+
+def test_movie_rank(movie):
+    assert movie.rank is None
+    movie.rank = ''
+    assert movie.rank is None
+    movie.rank = 0
+    assert movie.rank is None
+    movie.rank = -1
+    assert movie.rank is None
+    movie.rank = 2
+    assert movie.rank == 2
+    movie.rank = 1
+    assert movie.rank == 2
+    movie.rank = 'test'
+    assert movie.rank == 2
 
 
 def test_movie_external_rating(movie):
@@ -125,6 +137,7 @@ def test_movie_metascore(movie):
 def test_movie_file_reader_attributes(movie_all_attributes, movie_missing_attributes):
     assert movie_all_attributes.title == 'Guardians of the Galaxy'
     assert movie_all_attributes.release_year == 2014
+    assert movie_all_attributes.rank == 1
     assert movie_all_attributes.runtime_minutes == 121
     assert movie_all_attributes.external_rating == 8.1
     assert movie_all_attributes.rating_votes == 757074
@@ -133,6 +146,7 @@ def test_movie_file_reader_attributes(movie_all_attributes, movie_missing_attrib
 
     assert movie_missing_attributes.title == '5- 25- 77'
     assert movie_missing_attributes.release_year == 2007
+    assert movie_missing_attributes.rank == 40
     assert movie_missing_attributes.runtime_minutes == 113
     assert movie_missing_attributes.external_rating == 7.1
     assert movie_missing_attributes.rating_votes == 241
