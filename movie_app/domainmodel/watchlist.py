@@ -6,11 +6,9 @@ if TYPE_CHECKING:
 
 
 class WatchList:
-
     def __init__(self):
         self.__watch_list: List[Movie] = list()
         self.__user = None
-        self.__id = id(self)
 
     @property
     def user(self) -> 'User':
@@ -21,10 +19,6 @@ class WatchList:
         from movie_app.domainmodel.user import User
         if isinstance(user, User) and user.user_name is not None and self.__user is None:
             self.__user = user
-
-    @property
-    def id(self) -> int:
-        return self.__id
 
     def add_movie(self, movie: Movie):
         if isinstance(movie, Movie) and movie not in self.__watch_list and movie.title is not None:
@@ -63,4 +57,4 @@ class WatchList:
         return self.__watch_list == other.__watch_list and self.__user == other.__user
 
     def __hash__(self):
-        return hash((self.__user, self.__id))
+        return hash(self.__user)

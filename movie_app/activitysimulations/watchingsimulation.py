@@ -5,6 +5,7 @@ from movie_app.domainmodel.review import Review
 
 
 class MovieWatchingSimulation:
+    __watching_sim_id = 1
 
     def __init__(self, movie: Movie):
         if isinstance(movie, Movie):
@@ -14,7 +15,9 @@ class MovieWatchingSimulation:
 
         self.__users: List[User] = list()
         self.__reviews: List[Review] = list()
-        self.__id = id(self)
+        self.__id: int = MovieWatchingSimulation.__watching_sim_id
+
+        MovieWatchingSimulation.__watching_sim_id += 1
 
     @property
     def movie(self) -> Movie:
@@ -66,3 +69,7 @@ class MovieWatchingSimulation:
         if review in self.__reviews:
             self.__reviews.remove(review)
             review.user.remove_review(review)
+
+    @staticmethod
+    def reset_id():
+        MovieWatchingSimulation.__watching_sim_id = 1

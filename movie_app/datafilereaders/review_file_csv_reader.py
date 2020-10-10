@@ -7,15 +7,15 @@ from movie_app.domainmodel import Review, Movie, User
 
 class ReviewFileCSVReader:
 
-    def __init__(self, file_name: str, movies: Iterable[Movie], users: Iterable[User]):
+    def __init__(self, file_name: str, movies: List[Movie], users: List[User]):
         if isinstance(file_name, str) and Path(file_name).exists() and '.csv' in file_name:
             self.__file_name = file_name
         else:
             self.__file_name = None
 
         self.__dataset_of_reviews: List[Review] = list()
-        self.__dataset_of_movies: List[Movie] = list(movies)
-        self.__dataset_of_users: List[User] = list(users)
+        self.__dataset_of_movies: List[Movie] = movies
+        self.__dataset_of_users: List[User] = users
 
     @property
     def file_name(self) -> str:
@@ -29,6 +29,7 @@ class ReviewFileCSVReader:
         with open(self.__file_name, mode='r', encoding='utf-8-sig') as csv_file:
             review_file_reader = csv.DictReader(csv_file)
 
+            Review.reset_id()
             for row in review_file_reader:
                 try:
                     user_id = int(row['User ID'])
@@ -52,7 +53,7 @@ class ReviewFileCSVReader:
 
                 review = Review(review_movie, review_text, rating)
 
-                if review_user is not None:
+                if review_user is not None and review_user.id is not None:
                     review_user.add_review(review)
 
                 if review not in self.__dataset_of_reviews and review.movie is not None and review.user is not None:

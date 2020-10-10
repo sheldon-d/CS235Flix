@@ -2,7 +2,7 @@ import abc
 from typing import List
 
 from movie_app.domainmodel import Actor, Director, Genre, Movie, Review, User, WatchList
-from movie_app.datafilereaders import MovieFileCSVReader
+from movie_app.datafilereaders import MovieFileCSVReader, UserFileCSVReader, ReviewFileCSVReader, WatchListFileCSVReader
 from movie_app.activitysimulations import MovieWatchingSimulation
 
 repo_instance = None
@@ -124,6 +124,8 @@ class AbstractRepository(abc.ABC):
         If the Review doesn't have bidirectional links with a Movie and a User,
         this method raises a RepositoryException and doesn't update the repository.
         """
+        if not isinstance(review, Review) or review.rating is None:
+            raise RepositoryException('Review provided is either of the wrong type or missing a rating')
         if review.user is None or review not in review.user.reviews:
             raise RepositoryException('Review not correctly linked to a User')
         if review.movie is None or review not in review.movie.reviews:
@@ -131,9 +133,9 @@ class AbstractRepository(abc.ABC):
 
     @abc.abstractmethod
     def get_review(self, review_id: int) -> Review:
-        """ Returns Review with the given id from the repository.
+        """ Returns Review with the given ID from the repository.
 
-        If there is no Review with the given id, this method returns None.
+        If there is no Review with the given ID, this method returns None.
         """
         raise NotImplementedError
 
@@ -174,14 +176,16 @@ class AbstractRepository(abc.ABC):
         If the Watchlist doesn't have a bidirectional link with a User,
         this method raises a RepositoryException and doesn't update the repository.
         """
+        if not isinstance(watchlist, WatchList):
+            raise RepositoryException('Watchlist provided is of the wrong type')
         if watchlist.user is None or watchlist is not watchlist.user.watchlist:
             raise RepositoryException('Watchlist not correctly linked to a User')
 
     @abc.abstractmethod
-    def get_watchlist(self, watchlist_id: int) -> WatchList:
-        """ Returns Watchlist with the given id from the repository.
+    def get_watchlist_by_user_id(self, user_id: int) -> WatchList:
+        """ Returns Watchlist for the User with the given ID from the repository.
 
-        If there is no Watchlist with the given id, this method returns None.
+        If there is no Watchlist for the User with the given ID, this method returns None.
         """
         raise NotImplementedError
 
@@ -201,6 +205,51 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def set_user_file_csv_reader(self, user_file_reader: UserFileCSVReader):
+        """ Sets a UserFileCSVReader object for the repository. """
+        if not isinstance(user_file_reader, UserFileCSVReader) or user_file_reader.file_name is None:
+            raise RepositoryException('User file CSV reader provided is either of the wrong type or does not have a \
+                valid csv filename')
+
+    @abc.abstractmethod
+    def get_user_file_csv_reader(self) -> UserFileCSVReader:
+        """ Returns the UserFileCSVReader object from the repository.
+
+        If there is no UserFileCSVReader object, this method returns None.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set_review_file_csv_reader(self, review_file_reader: ReviewFileCSVReader):
+        """ Sets a ReviewFileCSVReader object for the repository. """
+        if not isinstance(review_file_reader, ReviewFileCSVReader) or review_file_reader.file_name is None:
+            raise RepositoryException('Review file CSV reader provided is either of the wrong type or does not have a \
+                    valid csv filename')
+
+    @abc.abstractmethod
+    def get_review_file_csv_reader(self) -> ReviewFileCSVReader:
+        """ Returns the ReviewFileCSVReader object from the repository.
+
+        If there is no ReviewFileCSVReader object, this method returns None.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def set_watchlist_file_csv_reader(self, watchlist_file_reader: WatchListFileCSVReader):
+        """ Sets a WatchlistFileCSVReader object for the repository. """
+        if not isinstance(watchlist_file_reader, WatchListFileCSVReader) or watchlist_file_reader.file_name is None:
+            raise RepositoryException('Watchlist file CSV reader provided is either of the wrong type or does not \
+                                    have a valid csv filename')
+
+    @abc.abstractmethod
+    def get_watchlist_file_csv_reader(self) -> WatchListFileCSVReader:
+        """ Returns the WatchlistFileCSVReader object from the repository.
+
+        If there is no WatchlistFileCSVReader object, this method returns None.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def add_watching_sim(self, watching_sim: MovieWatchingSimulation):
         """ Adds a MovieWatchingSimulation object to the repository. """
         if not isinstance(watching_sim, MovieWatchingSimulation) or watching_sim.movie is None:
@@ -209,9 +258,9 @@ class AbstractRepository(abc.ABC):
 
     @abc.abstractmethod
     def get_watching_sim(self, watching_sim_id: int) -> MovieWatchingSimulation:
-        """ Returns a MovieWatchingSimulation object with the given id from the repository.
+        """ Returns a MovieWatchingSimulation object with the given ID from the repository.
 
-        If there is no MovieWatchingSimulation object with the given id, this method returns None.
+        If there is no MovieWatchingSimulation object with the given ID, this method returns None.
         """
         raise NotImplementedError
 
@@ -233,23 +282,44 @@ class AbstractRepository(abc.ABC):
 
     @abc.abstractmethod
     def load_movie_dataset(self):
-        """ Loads the Actor, Director, Genre, and Movie datasets with all provided attributes from the
-            MovieFileCSVReader object
+        """ Loads the Actor, Director, Genre, and Movie data from the provided MovieFileCSVReader object.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def load_users_and_watch_lists(self):
+    def load_users(self):
+        """ Loads the User data from the provided UserFileCSVReader object.
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
     def load_reviews(self):
+        """ Loads the Review data from the provided ReviewFileCSVReader object.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def load_watch_lists(self):
+        """ Loads the Watchlist data from the provided WatchListFileCSVReader object.
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
     def load_activity_simulations(self):
+        """ Loads the activity simulation data from the provided object
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def populate(self, data_path: str):
-        raise NotImplementedError
+    def populate(self, data_path_dict):
+        """ Creates required file reader objects using data stored within CSV files,
+        with paths given in the dictionary of data paths provided.
+        """
+        if "movies" not in data_path_dict.keys():
+            raise RepositoryException('No data file provided for MovieFileCSVReader')
+        if "users" not in data_path_dict.keys():
+            raise RepositoryException('No data file provided for UserFileCSVReader')
+        if "reviews" not in data_path_dict.keys():
+            raise RepositoryException('No data file provided for ReviewFileCSVReader')
+        if "watchlists" not in data_path_dict.keys():
+            raise RepositoryException('No data file provided for WatchListFileCSVReader')

@@ -1,6 +1,5 @@
 from movie_app.adapters.repository import RepositoryException
 from movie_app.domainmodel import Actor, Director, Genre, Movie, Review, User, WatchList
-from movie_app.datafilereaders import MovieFileCSVReader
 from movie_app.activitysimulations import MovieWatchingSimulation
 
 import pytest
@@ -201,6 +200,9 @@ def test_repository_can_add_review(in_memory_repo):
 
 def test_repository_cannot_add_invalid_review(in_memory_repo):
     with pytest.raises(RepositoryException):
+        in_memory_repo.add_review(Director('Joe'))
+
+    with pytest.raises(RepositoryException):
         in_memory_repo.add_review(Review('', '', 0))
 
     user = User("Martin", "pw12345")
@@ -230,5 +232,125 @@ def test_repository_cannot_add_invalid_review(in_memory_repo):
     assert in_memory_repo.get_review(review1.id) is review1
 
 
-def test_repository_can_get_reviews(in_memory_repo):
-    pass
+def test_repository_can_get_review(in_memory_repo):
+    review = in_memory_repo.get_review(1)
+    assert review.user == User('Ian', 'pw67890')
+    assert review.movie == Movie('Suicide Squad', 2016)
+    assert "loved" in review.review_text
+    assert review.rating == 10
+
+    assert review in review.user.reviews and review in review.movie.reviews
+
+    user = in_memory_repo.get_user(review.user.user_name)
+    assert review in user.reviews
+
+    movie = in_memory_repo.get_movie_by_rank(review.movie.rank)
+    assert review in movie.reviews
+
+
+def test_can_get_reviews_for_movie(in_memory_repo):
+    movie = in_memory_repo.get_movie_by_rank(1)
+    reviews_for_movie = in_memory_repo.get_reviews_for_movie(movie)
+
+    assert len(reviews_for_movie) == 2
+    assert in_memory_repo.get_review(3) in reviews_for_movie
+    assert in_memory_repo.get_review(4) in reviews_for_movie
+    assert in_memory_repo.get_review(1) not in reviews_for_movie
+
+
+def test_repository_can_add_user(in_memory_repo):
+    user = User('John', 'pwxyz123')
+    in_memory_repo.add_user(user)
+
+    assert in_memory_repo.get_user(user.user_name) is user
+
+
+def test_repository_cannot_add_invalid_user(in_memory_repo):
+    with pytest.raises(RepositoryException):
+        in_memory_repo.add_user(0)
+    with pytest.raises(RepositoryException):
+        in_memory_repo.add_user(Director('Joe'))
+
+
+def test_repository_can_get_user(in_memory_repo):
+    user = in_memory_repo.get_user('martin')
+    assert user == User('Martin', 'pw12345')
+    assert user.id == 1
+
+    review1 = in_memory_repo.get_review(2)
+    review2 = in_memory_repo.get_review(4)
+    assert review1 in user.reviews and review2 in user.reviews
+    assert user.watchlist.size() == 6
+    assert in_memory_repo.get_movie_by_rank(7) in user.watchlist
+
+    user = in_memory_repo.get_user('ian')
+    assert user == User('Ian', 'pw67890')
+    assert user.id == 2
+
+    review = in_memory_repo.get_review(1)
+    movie = in_memory_repo.get_movie_by_rank(review.movie.rank)
+    assert review in user.reviews and review in movie.reviews
+    assert user.watchlist.size() == 0
+
+
+def test_repository_cannot_get_nonexistent_user(in_memory_repo):
+    user = in_memory_repo.get_user('Sam')
+    assert user is None
+
+
+def test_repository_can_get_users_watched_movie(in_memory_repo):
+    user = in_memory_repo.get_user('daniel')
+    movie = in_memory_repo.get_movie_by_rank(7)
+    users_watched_movie = in_memory_repo.get_users_watched_movie(movie)
+    assert user in users_watched_movie
+
+    user1 = in_memory_repo.get_user('martin')
+    movie = in_memory_repo.get_movie_by_rank(3)
+    users_watched_movie = in_memory_repo.get_users_watched_movie(movie)
+    assert user in users_watched_movie and user1 in users_watched_movie
+    assert user1.time_spent_watching_movies_minutes == \
+           sum([in_memory_repo.get_movie_by_rank(x).runtime_minutes for x in [2, 6, 5, 3]])
+
+    assert len(in_memory_repo.get_users_watched_movie(in_memory_repo.get_movie_by_rank(1))) == 0
+
+
+def test_repository_can_add_watchlist(in_memory_repo):
+    user = User('Matt', 'pw4567')
+    user.watchlist.add_movie(Movie('Sing', 2016))
+    in_memory_repo.add_watchlist(user.watchlist)
+
+    assert in_memory_repo.get_watchlist_by_user_id(user.id) == user.watchlist
+    assert in_memory_repo.get_watchlist_by_user_id(user.id).size() == 1
+
+
+def test_repository_cannot_add_invalid_watchlist(in_memory_repo):
+    watchlist = WatchList()
+    watchlist.add_movie(Movie('Guardians of the Galaxy', 2014))
+
+    with pytest.raises(RepositoryException):
+        in_memory_repo.add_watchlist(watchlist)
+    with pytest.raises(RepositoryException):
+        in_memory_repo.add_watchlist(Director('Joe'))
+
+    user = User('John', 'pw0135')
+    user.watchlist.add_movie(Movie('A Movie', 2020))
+
+    with pytest.raises(RepositoryException):
+        in_memory_repo.add_watchlist(user.watchlist)
+
+    user.watchlist.remove_movie(Movie('A Movie', 2020))
+    in_memory_repo.add_watchlist(user.watchlist)
+
+
+def test_repository_can_get_watchlist(in_memory_repo):
+    watchlist = in_memory_repo.get_watchlist_by_user_id(3)
+
+    assert watchlist.user == in_memory_repo.get_user('daniel')
+    assert watchlist.size() == 5
+    assert watchlist.first_movie_in_watchlist() == in_memory_repo.get_movie_by_rank(5)
+    assert watchlist.select_movie_to_watch(4) == in_memory_repo.get_movie_by_rank(8)
+
+
+def test_repository_cannot_get_nonexistent_watchlist(in_memory_repo):
+    watchlist = in_memory_repo.get_watchlist_by_user_id(4)
+    assert watchlist is None

@@ -1,82 +1,64 @@
 from movie_app.datafilereaders import MovieFileCSVReader, UserFileCSVReader, ReviewFileCSVReader, WatchListFileCSVReader
 from movie_app.adapters.memory_repository import MemoryRepository
-from pathlib import Path
+from config import DataPaths
 
 import pytest
 
-# Using actual data
-MOVIE_DATA_PATH = str(Path.cwd().joinpath('movie_app', 'adapters', 'datafiles', 'Data1000Movies.csv'))
-
-# Using test data
-TEST_MOVIE_DATA_PATH = str(Path.cwd().joinpath('tests', 'data', 'movies.csv'))
-TEST_USER_DATA_PATH = str(Path.cwd().joinpath('tests', 'data', 'users.csv'))
-TEST_REVIEW_DATA_PATH = str(Path.cwd().joinpath('tests', 'data', 'reviews.csv'))
-TEST_WATCHLIST_DATA_PATH = str(Path.cwd().joinpath('tests', 'data', 'watchlists.csv'))
+prod_data = DataPaths.PROD_DATA_PATHS
+test_data = DataPaths.TEST_DATA_PATHS
 
 
 @pytest.fixture()
 def movie_file_reader_prod():
-    return MovieFileCSVReader(MOVIE_DATA_PATH)
+    return MovieFileCSVReader(prod_data["movies"])
 
 
 @pytest.fixture()
 def dataset_of_movies_prod(movie_file_reader_prod):
     movie_file_reader_prod.read_csv_file()
-    return movie_file_reader_prod.dataset_of_movies
+    return list(movie_file_reader_prod.dataset_of_movies)
 
 
 @pytest.fixture()
 def movie_file_reader():
-    return MovieFileCSVReader(TEST_MOVIE_DATA_PATH)
+    return MovieFileCSVReader(test_data["movies"])
 
 
 @pytest.fixture()
 def dataset_of_movies(movie_file_reader):
     movie_file_reader.read_csv_file()
-    return movie_file_reader.dataset_of_movies
+    return list(movie_file_reader.dataset_of_movies)
 
 
 @pytest.fixture()
 def dataset_of_actors(movie_file_reader):
     movie_file_reader.read_csv_file()
-    return movie_file_reader.dataset_of_actors
+    return list(movie_file_reader.dataset_of_actors)
 
 
 @pytest.fixture()
-def user_file_reader():
-    return UserFileCSVReader(TEST_USER_DATA_PATH)
+def user_file_reader(dataset_of_movies):
+    return UserFileCSVReader(test_data["users"], dataset_of_movies)
 
 
 @pytest.fixture()
 def dataset_of_users(user_file_reader):
     user_file_reader.read_csv_file()
-    return user_file_reader.dataset_of_users
+    return list(user_file_reader.dataset_of_users)
 
 
 @pytest.fixture()
 def review_file_reader(dataset_of_movies, dataset_of_users):
-    return ReviewFileCSVReader(TEST_REVIEW_DATA_PATH, dataset_of_movies, dataset_of_users)
-
-
-@pytest.fixture()
-def dataset_of_reviews(review_file_reader):
-    review_file_reader.read_csv_file()
-    return review_file_reader.dataset_of_reviews
+    return ReviewFileCSVReader(test_data["reviews"], dataset_of_movies, dataset_of_users)
 
 
 @pytest.fixture()
 def watchlist_file_reader(dataset_of_movies, dataset_of_users):
-    return WatchListFileCSVReader(TEST_WATCHLIST_DATA_PATH, dataset_of_movies, dataset_of_users)
-
-
-@pytest.fixture()
-def dataset_of_watch_lists(watchlist_file_reader):
-    watchlist_file_reader.read_csv_file()
-    return watchlist_file_reader.dataset_of_watch_lists
+    return WatchListFileCSVReader(test_data["watchlists"], dataset_of_movies, dataset_of_users)
 
 
 @pytest.fixture()
 def in_memory_repo():
     repo = MemoryRepository()
-    repo.populate(TEST_MOVIE_DATA_PATH)
+    repo.populate(test_data)
     return repo

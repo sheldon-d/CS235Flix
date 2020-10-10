@@ -2,18 +2,19 @@ import csv
 from typing import List, Iterable
 from pathlib import Path
 
-from movie_app.domainmodel import User
+from movie_app.domainmodel import User, Movie
 
 
 class UserFileCSVReader:
 
-    def __init__(self, file_name: str):
+    def __init__(self, file_name: str, movies: List[Movie]):
         if isinstance(file_name, str) and Path(file_name).exists() and '.csv' in file_name:
             self.__file_name = file_name
         else:
             self.__file_name = None
 
         self.__dataset_of_users: List[User] = list()
+        self.__dataset_of_movies: List[Movie] = movies
 
     @property
     def file_name(self) -> str:
@@ -27,17 +28,21 @@ class UserFileCSVReader:
         with open(self.__file_name, mode='r', encoding='utf-8-sig') as csv_file:
             user_file_reader = csv.DictReader(csv_file)
 
+            User.reset_id()
             for row in user_file_reader:
-                try:
-                    user_id = int(row['ID'])
-                except ValueError:
-                    user_id = None
-
                 user_name = row['Name']
                 password = row['Password']
 
                 user = User(user_name, password)
-                user.id = user_id
+
+                for val in row['Watched Movie Ranks'].split(','):
+                    try:
+                        movie_rank = int(val)
+                        watched_movie = next((movie for movie in self.__dataset_of_movies
+                                              if movie.rank == movie_rank), None)
+                        user.watch_movie(watched_movie)
+                    except ValueError:
+                        pass    # Ignore exception and don't add movie to watched movies
 
                 if user not in self.__dataset_of_users and user.id is not None:
                     self.__dataset_of_users.append(user)

@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 
 
 class Review:
+    __review_id = 1
 
     def __init__(self, movie: 'Movie', review_text: str, rating: int):
         from movie_app.domainmodel.movie import Movie
@@ -27,7 +28,9 @@ class Review:
 
         self.__timestamp: datetime = datetime.today()
         self.__user = None
-        self.__id = id(self)
+        self.__id: int = Review.__review_id
+
+        Review.__review_id += 1
 
     @property
     def movie(self) -> 'Movie':
@@ -81,3 +84,7 @@ class Review:
 
     def __hash__(self):
         return hash((self.__movie, self.__timestamp, self.__user))
+
+    @staticmethod
+    def reset_id():
+        Review.__review_id = 1

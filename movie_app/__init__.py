@@ -1,6 +1,6 @@
 """Initialise Flask app."""
-import os
 from flask import Flask
+from config import DataPaths
 
 
 def create_app(test_config=None):
@@ -11,6 +11,6 @@ def create_app(test_config=None):
 
     # Configure the app from configuration-file settings.
     app.config.from_object('config.Config')
-    data_path = os.path.join('movie_app', 'adapters', 'datafiles')
+    data_path = DataPaths.PROD_DATA_BASE_PATH
 
     return app

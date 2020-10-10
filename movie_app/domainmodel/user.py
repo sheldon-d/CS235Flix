@@ -5,6 +5,7 @@ from movie_app.domainmodel.watchlist import WatchList
 
 
 class User:
+    __user_id = 1
 
     def __init__(self, user_name: str, password: str):
         if isinstance(user_name, str) and user_name.strip() != "":
@@ -17,22 +18,18 @@ class User:
         else:
             self.__password = None
 
-        self.__id = None
+        self.__id: int = User.__user_id
         self.__watched_movies: List[Movie] = list()
         self.__reviews: List[Review] = list()
         self.__time_spent_watching_movies_minutes: int = 0
         self.__watchlist: WatchList = WatchList()
 
         self.__watchlist.user = self
+        User.__user_id += 1
 
     @property
     def id(self) -> int:
         return self.__id
-
-    @id.setter
-    def id(self, user_id: int):
-        if isinstance(user_id, int) and user_id > 0 and self.__id is None:
-            self.__id = user_id
 
     @property
     def user_name(self) -> str:
@@ -100,3 +97,7 @@ class User:
         if review in self.__reviews:
             self.__reviews.remove(review)
             review.movie.remove_review(review)
+
+    @staticmethod
+    def reset_id():
+        User.__user_id = 1

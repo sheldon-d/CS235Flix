@@ -56,26 +56,29 @@ def test_movie_actor_colleagues(actor_from_file, movie_from_file):
 
 def test_user_file_reader(user_file_reader):
     user_file_reader.read_csv_file()
-    assert sum(1 for _ in user_file_reader.dataset_of_users) == 3
-    assert User('Martin', 'pw12345') in user_file_reader.dataset_of_users
-    assert User('Ian', 'pw67890') in user_file_reader.dataset_of_users
-    assert User('Daniel', 'pw87465') in user_file_reader.dataset_of_users
-    assert User('Bob', 'pw01234') not in user_file_reader.dataset_of_users
+    users = [user for user in user_file_reader.dataset_of_users]
+    assert len(users) == 3
+    assert User('Martin', 'pw12345') == users[0]
+    assert User('Ian', 'pw67890') == users[1]
+    assert User('Daniel', 'pw87465') == users[2]
+    assert User('Bob', 'pw01234') not in users
+
+    assert Movie('Prometheus', 2012) in users[0].watched_movies
+    assert users[1].time_spent_watching_movies_minutes == 0
+    assert Movie('Sing', 2016) in users[2].watched_movies
 
     for user in user_file_reader.dataset_of_users:
         assert user.user_name is not None and user.password is not None
         assert user.id is not None
-        assert sum(1 for _ in user.watched_movies) == 0
         assert sum(1 for _ in user.reviews) == 0
-        assert user.time_spent_watching_movies_minutes == 0
         assert sum(1 for _ in user.watchlist) == 0
         assert user.watchlist.user is user
 
 
 def test_review_file_reader(review_file_reader):
     review_file_reader.read_csv_file()
-    assert sum(1 for _ in review_file_reader.dataset_of_reviews) == 3
     reviews = [review for review in review_file_reader.dataset_of_reviews]
+    assert len(reviews) == 4
 
     assert reviews[0].user == User('Ian', 'pw67890')
     assert reviews[1].user == User('Martin', 'pw12345')
@@ -92,8 +95,8 @@ def test_review_file_reader(review_file_reader):
 
 def test_watchlist_file_reader(watchlist_file_reader):
     watchlist_file_reader.read_csv_file()
-    assert sum(1 for _ in watchlist_file_reader.dataset_of_watch_lists) == 3
     watch_lists = [watchlist for watchlist in watchlist_file_reader.dataset_of_watch_lists]
+    assert len(watch_lists) == 3
 
     assert watch_lists[0].user == User('Daniel', 'pw87465')
     assert watch_lists[1].user == User('Martin', 'pw12345')
