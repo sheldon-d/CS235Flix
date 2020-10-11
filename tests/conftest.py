@@ -1,4 +1,5 @@
-from movie_app.datafilereaders import MovieFileCSVReader, UserFileCSVReader, ReviewFileCSVReader, WatchListFileCSVReader
+from movie_app.datafilereaders import MovieFileCSVReader, UserFileCSVReader, ReviewFileCSVReader, \
+    WatchListFileCSVReader, WatchingSimFileCSVReader
 from movie_app.adapters.memory_repository import MemoryRepository
 from config import DataPaths
 
@@ -53,8 +54,20 @@ def review_file_reader(dataset_of_movies, dataset_of_users):
 
 
 @pytest.fixture()
+def dataset_of_reviews(review_file_reader):
+    review_file_reader.read_csv_file()
+    dataset_of_reviews = {review.id: review for review in list(review_file_reader.dataset_of_reviews)}
+    return dataset_of_reviews
+
+
+@pytest.fixture()
 def watchlist_file_reader(dataset_of_movies, dataset_of_users):
-    return WatchListFileCSVReader(test_data["watchlists"], dataset_of_movies, dataset_of_users)
+    return WatchListFileCSVReader(test_data["watch_lists"], dataset_of_movies, dataset_of_users)
+
+
+@pytest.fixture()
+def watching_sim_file_reader(dataset_of_movies, dataset_of_users, dataset_of_reviews):
+    return WatchingSimFileCSVReader(test_data["watching_sims"], dataset_of_movies, dataset_of_users, dataset_of_reviews)
 
 
 @pytest.fixture()

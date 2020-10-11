@@ -78,7 +78,7 @@ def test_user_file_reader(user_file_reader):
 def test_review_file_reader(review_file_reader):
     review_file_reader.read_csv_file()
     reviews = [review for review in review_file_reader.dataset_of_reviews]
-    assert len(reviews) == 4
+    assert len(reviews) == 8
 
     assert reviews[0].user == User('Ian', 'pw67890')
     assert reviews[1].user == User('Martin', 'pw12345')
@@ -113,3 +113,27 @@ def test_watchlist_file_reader(watchlist_file_reader):
     assert watch_lists[0].select_movie_to_watch(5) is None
     assert watch_lists[1].select_movie_to_watch(5) == Movie('Suicide Squad', 2016)
     assert watch_lists[2].select_movie_to_watch(0) is None
+
+
+def test_watching_sim_file_reader(watching_sim_file_reader):
+    watching_sim_file_reader.read_csv_file()
+    watching_sims = [watching_sim for watching_sim in watching_sim_file_reader.dataset_of_watching_sims]
+    assert len(watching_sims) == 5
+
+    assert watching_sims[0].movie == Movie('The Great Wall', 2016)
+    assert watching_sims[1].movie == Movie('Split', 2016)
+    assert watching_sims[2].movie == Movie('Sing', 2016)
+    assert watching_sims[3].movie == Movie('The Lost City of Z', 2016)
+
+    assert User('Martin', 'pw12345') in watching_sims[0].users
+    assert sum(1 for _ in watching_sims[1].users) == 2
+    assert User('Daniel', 'pw87645') in watching_sims[2].users
+    assert sum(1 for _ in watching_sims[3].users) == 3
+
+    review = next((review for review in watching_sims[0].reviews if review.id == 5), None)
+    assert review.rating == 7 and review.user in watching_sims[0].users and review.movie is watching_sims[0].movie
+    assert len([review for review in watching_sims[2].reviews]) == 0
+    reviews = [review for review in watching_sims[3].reviews]
+    assert len(reviews) == 2
+    assert reviews[0].movie == reviews[1].movie and reviews[0].movie == watching_sims[3].movie
+    assert reviews[0].user in watching_sims[3].users and reviews[1].user in watching_sims[3].users

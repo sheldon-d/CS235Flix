@@ -261,6 +261,10 @@ def test_watching_simulation_reviews(watching_simulation):
     watching_simulation.add_user(user4)
     assert sum(1 for _ in watching_simulation.users) == 3
 
+    review = Review(watching_simulation.movie, 'Fun', 8)
+    watching_simulation.add_user_review(users[2], review)
+    assert review not in watching_simulation.reviews and review not in watching_simulation.movie.reviews
+
     watching_simulation.watch_movie()
     movie = watching_simulation.movie
 

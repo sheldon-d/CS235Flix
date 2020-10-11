@@ -2,4 +2,8 @@ ID,User ID,Movie Rank,Review Text,Rating
 1,2,5,"I loved this movie.",10
 2,1,8,"This movie was very enjoyable.",7
 3,3,1,"Very entertaining movie.",8
-4,1,1,"Interesting plot.",6
+4,1,1,"Interesting plot.",5
+5,3,6,"Great story.",7
+6,2,3,"Spooky and creepy.",6
+7,1,9,"Nice tale.",8
+8,2,9,"Enjoyable watch.",9

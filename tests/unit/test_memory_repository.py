@@ -190,7 +190,7 @@ def test_repository_cannot_get_movies_with_no_genres(in_memory_repo):
 
 def test_repository_can_add_review(in_memory_repo):
     user = User("Martin", "pw12345")
-    movie = Movie('Moana', 2016)
+    movie = Movie('Sing', 2016)
     review = Review(movie, "This movie was very enjoyable.", 8)
     user.add_review(review)
 
@@ -206,7 +206,7 @@ def test_repository_cannot_add_invalid_review(in_memory_repo):
         in_memory_repo.add_review(Review('', '', 0))
 
     user = User("Martin", "pw12345")
-    movie = Movie('Moana', 2016)
+    movie = Movie('Sing', 2016)
     review = Review(movie, "This movie was very enjoyable.", 8)
     review1 = Review(review.movie, review.review_text, review.rating)
 
@@ -246,6 +246,11 @@ def test_repository_can_get_review(in_memory_repo):
 
     movie = in_memory_repo.get_movie_by_rank(review.movie.rank)
     assert review in movie.reviews
+
+
+def test_repository_cannot_get_nonexistent_review(in_memory_repo):
+    review = in_memory_repo.get_review(0)
+    assert review is None
 
 
 def test_can_get_reviews_for_movie(in_memory_repo):
@@ -309,7 +314,7 @@ def test_repository_can_get_users_watched_movie(in_memory_repo):
     users_watched_movie = in_memory_repo.get_users_watched_movie(movie)
     assert user in users_watched_movie and user1 in users_watched_movie
     assert user1.time_spent_watching_movies_minutes == \
-           sum([in_memory_repo.get_movie_by_rank(x).runtime_minutes for x in [2, 6, 5, 3]])
+           sum([in_memory_repo.get_movie_by_rank(x).runtime_minutes for x in [2, 6, 5, 3, 6, 3, 9]])
 
     assert len(in_memory_repo.get_users_watched_movie(in_memory_repo.get_movie_by_rank(1))) == 0
 
@@ -354,3 +359,115 @@ def test_repository_can_get_watchlist(in_memory_repo):
 def test_repository_cannot_get_nonexistent_watchlist(in_memory_repo):
     watchlist = in_memory_repo.get_watchlist_by_user_id(4)
     assert watchlist is None
+
+
+def test_repository_can_add_watching_sim(in_memory_repo):
+    users = [in_memory_repo.get_user_by_id(x) for x in [1, 2, 3]]
+    reviews = [in_memory_repo.get_review(x) for x in [3, 4]]
+    watching_simulation = MovieWatchingSimulation(in_memory_repo.get_movie_by_rank(1))
+
+    for user in users:
+        watching_simulation.add_user(user)
+
+    watching_simulation.watch_movie()
+    watching_simulation.add_user_review(users[2], reviews[0])
+    watching_simulation.add_user_review(users[0], reviews[1])
+
+    in_memory_repo.add_watching_sim(watching_simulation)
+    assert in_memory_repo.get_watching_sim(watching_simulation.id) == watching_simulation
+    assert sum(1 for _ in in_memory_repo.get_watching_sim(watching_simulation.id).users) == 3
+    assert sum(1 for _ in in_memory_repo.get_watching_sim(watching_simulation.id).reviews) == 2
+
+
+def test_repository_cannot_add_invalid_watching_sim(in_memory_repo):
+    with pytest.raises(RepositoryException):
+        in_memory_repo.add_watching_sim(Movie('A Movie', 2020))
+
+    watching_simulation = MovieWatchingSimulation(Movie('A Movie', 2020))
+    with pytest.raises(RepositoryException):
+        in_memory_repo.add_watching_sim(watching_simulation)
+
+    watching_simulation = MovieWatchingSimulation(in_memory_repo.get_movie_by_rank(1))
+    users = [in_memory_repo.get_user_by_id(1), User('Bob', 'pw1235'), in_memory_repo.get_user_by_id(3),
+             in_memory_repo.get_user_by_id(2)]
+    for user in users:
+        watching_simulation.add_user(user)
+    with pytest.raises(RepositoryException):
+        in_memory_repo.add_watching_sim(watching_simulation)
+
+    watching_simulation.remove_user(User('Bob', 'pw1235'))
+    review = Review(watching_simulation.movie, 'Cool', 6)
+    users[3].add_review(review)
+    reviews = [in_memory_repo.get_review(3), review, in_memory_repo.get_review(4)]
+    watching_simulation.watch_movie()
+    for review in reviews:
+        watching_simulation.add_user_review(review.user, review)
+    with pytest.raises(RepositoryException):
+        in_memory_repo.add_watching_sim(watching_simulation)
+
+    watching_simulation.remove_user_review(reviews[1])
+    for user in users:
+        watching_simulation.remove_user(user)
+    with pytest.raises(RepositoryException):
+        in_memory_repo.add_watching_sim(watching_simulation)
+
+
+def test_repository_can_get_watching_sim(in_memory_repo):
+    watching_sim = in_memory_repo.get_watching_sim(1)
+    assert watching_sim.movie == Movie('The Great Wall', 2016)
+    assert watching_sim.movie is in_memory_repo.get_movie_by_rank(6)
+    assert sum(1 for _ in watching_sim.users) == 2
+    assert in_memory_repo.get_user_by_id(1) in watching_sim.users
+    assert in_memory_repo.get_user_by_id(3) in watching_sim.users
+    assert sum(1 for _ in watching_sim.reviews) == 1
+    assert in_memory_repo.get_review(5) in watching_sim.reviews
+
+    for user in watching_sim.users:
+        assert watching_sim.movie in user.watched_movies
+
+
+def test_repository_can_get_watching_sim_with_no_reviews(in_memory_repo):
+    watching_sim = in_memory_repo.get_watching_sim(3)
+    user = next((user for user in watching_sim.users if user.id == 2), None)
+    assert watching_sim.movie not in user.watched_movies
+    user = next((user for user in watching_sim.users if user.id == 3), None)
+    assert watching_sim.movie in user.watched_movies
+
+
+def test_repository_cannot_get_nonexistent_watching_sim(in_memory_repo):
+    watching_sim = in_memory_repo.get_watching_sim(0)
+    assert watching_sim is None
+
+
+def test_repository_can_get_watching_sims_for_movie(in_memory_repo):
+    movie = in_memory_repo.get_movie_by_rank(6)
+    watching_sims_for_movie = in_memory_repo.get_watching_sims_for_movie(movie)
+    assert in_memory_repo.get_watching_sim(1) in watching_sims_for_movie
+
+    movie = in_memory_repo.get_movie_by_rank(4)
+    watching_sims_for_movie = in_memory_repo.get_watching_sims_for_movie(movie)
+    assert in_memory_repo.get_watching_sim(3) in watching_sims_for_movie
+    assert in_memory_repo.get_watching_sim(5) in watching_sims_for_movie
+
+    movie = Movie('Moana', 2016)
+    assert len(in_memory_repo.get_watching_sims_for_movie(movie)) == 0
+
+
+def test_repository_can_get_watching_sims_by_users(in_memory_repo):
+    users = [in_memory_repo.get_user_by_id(x) for x in range(1, 4)]
+
+    watching_sims_with_users = in_memory_repo.get_watching_sims_by_users(users)
+    assert len(watching_sims_with_users) == 1
+    assert in_memory_repo.get_watching_sim(4) in watching_sims_with_users
+
+    users.remove(users[0])
+    watching_sims_with_users = in_memory_repo.get_watching_sims_by_users(users)
+    assert len(watching_sims_with_users) == 2
+    assert in_memory_repo.get_watching_sim(3) in watching_sims_with_users
+    assert in_memory_repo.get_watching_sim(4) in watching_sims_with_users
+
+
+def test_repository_can_get_watching_sims_with_no_users(in_memory_repo):
+    watching_sims_with_no_users = in_memory_repo.get_watching_sims_with_no_users()
+    assert len(watching_sims_with_no_users) == 1
+    assert in_memory_repo.get_watching_sim(5) in watching_sims_with_no_users

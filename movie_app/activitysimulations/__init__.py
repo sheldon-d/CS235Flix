@@ -1,1 +1,1 @@
-from .watchingsimulation import MovieWatchingSimulation
+from .watching_simulation import MovieWatchingSimulation

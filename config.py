@@ -24,5 +24,6 @@ class DataPaths:
         "movies": str(TEST_DATA_BASE_PATH.joinpath('movies.csv')),
         "users": str(TEST_DATA_BASE_PATH.joinpath('users.csv')),
         "reviews": str(TEST_DATA_BASE_PATH.joinpath('reviews.csv')),
-        "watchlists": str(TEST_DATA_BASE_PATH.joinpath('watchlists.csv'))
+        "watch_lists": str(TEST_DATA_BASE_PATH.joinpath('watch_lists.csv')),
+        "watching_sims": str(TEST_DATA_BASE_PATH.joinpath('watching_sims.csv'))
     }

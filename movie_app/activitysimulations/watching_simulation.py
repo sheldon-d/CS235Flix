@@ -59,7 +59,8 @@ class MovieWatchingSimulation:
             user.watch_movie(self.__movie)
 
     def add_user_review(self, user: User, review: Review):
-        if user in self.__users and review.movie == self.__movie:
+        if user in self.__users and (review.user is None or review.user is user) and \
+                review.movie is self.__movie and review.movie in user.watched_movies:
             user.add_review(review)
 
             if review in user.reviews and review in self.__movie.reviews and review not in self.__reviews:

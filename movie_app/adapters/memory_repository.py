@@ -2,7 +2,8 @@ from typing import List, Dict
 
 from movie_app.adapters.repository import AbstractRepository, RepositoryException
 from movie_app.domainmodel import Actor, Director, Genre, Movie, Review, User, WatchList
-from movie_app.datafilereaders import MovieFileCSVReader, UserFileCSVReader, ReviewFileCSVReader, WatchListFileCSVReader
+from movie_app.datafilereaders import MovieFileCSVReader, UserFileCSVReader, ReviewFileCSVReader, \
+    WatchListFileCSVReader, WatchingSimFileCSVReader
 from movie_app.activitysimulations import MovieWatchingSimulation
 
 
@@ -137,6 +138,8 @@ class MemoryRepository(AbstractRepository):
 
     def add_review(self, review: Review):
         super().add_review(review)
+        if review.movie not in self.__movies:
+            raise RepositoryException(f'Movie {review.movie} for Review is not in the repository')
         if review.id not in self.__reviews.keys() and review not in self.__reviews.values():
             self.__reviews[review.id] = review
 
@@ -159,6 +162,9 @@ class MemoryRepository(AbstractRepository):
     def get_user(self, user_name: str) -> User:
         return next((user for user in self.__users if user.user_name == user_name), None)
 
+    def get_user_by_id(self, user_id: int) -> User:
+        return next((user for user in self.__users if user.id == user_id), None)
+
     def get_users_watched_movie(self, movie: Movie) -> List[User]:
         return [user for user in self.__users if movie in user.watched_movies and movie in self.__movies]
 
@@ -166,8 +172,8 @@ class MemoryRepository(AbstractRepository):
         super().add_watchlist(watchlist)
         for movie in watchlist:
             if movie not in self.__movies:
-                raise RepositoryException(f'Movie {movie} in watchlist is not in the repository')
-        
+                raise RepositoryException(f'Movie {movie} in Watchlist is not in the repository')
+
         if watchlist not in self.__watch_lists:
             self.__watch_lists.append(watchlist)
 
@@ -206,8 +212,27 @@ class MemoryRepository(AbstractRepository):
     def get_watchlist_file_csv_reader(self) -> WatchListFileCSVReader:
         return self.__watchlist_file_csv_reader
 
+    def set_watching_sim_file_csv_reader(self, watching_sim_file_reader: WatchingSimFileCSVReader):
+        super().set_watching_sim_file_csv_reader(watching_sim_file_reader)
+        if self.__watching_sim_file_csv_reader is None:
+            self.__watching_sim_file_csv_reader = watching_sim_file_reader
+
+    def get_watching_sim_file_csv_reader(self) -> WatchingSimFileCSVReader:
+        return self.__watching_sim_file_csv_reader
+
     def add_watching_sim(self, watching_sim: MovieWatchingSimulation):
         super().add_watching_sim(watching_sim)
+        if watching_sim.movie not in self.__movies:
+            raise RepositoryException(f'Movie {watching_sim.movie} for watching simulation is not in the repository')
+
+        for user in watching_sim.users:
+            if user not in self.__users:
+                raise RepositoryException(f'User {user} for watching simulation is not in the repository')
+
+        for review in watching_sim.reviews:
+            if review not in self.__reviews.values():
+                raise RepositoryException(f'Review {review} for watching simulation is not in the repository')
+
         if watching_sim.id not in self.__watching_sims.keys() and watching_sim not in self.__watching_sims.values():
             self.__watching_sims[watching_sim.id] = watching_sim
 
@@ -220,18 +245,34 @@ class MemoryRepository(AbstractRepository):
         return watching_sim
 
     def get_watching_sims_for_movie(self, movie: Movie) -> List[MovieWatchingSimulation]:
-        """ Returns a list of MovieWatchingSimulations for the given Movie.
-
-        If there are none for the given Movie, this method returns an empty list.
-        """
-        raise NotImplementedError
+        return [watching_sim for watching_sim in self.__watching_sims.values() if watching_sim.movie == movie and
+                movie in self.__movies]
 
     def get_watching_sims_by_users(self, user_list: List[User]) -> List[MovieWatchingSimulation]:
-        """ Returns a list of MovieWatchingSimulations with the given list of Users.
+        # Only include Users which are in this repository
+        existing_users = [user for user in user_list if user in self.__users]
 
-        If there are none with the given list of Users, this method returns an empty list.
-        """
-        raise NotImplementedError
+        # Fetch the Watching Simulations which have all of the existing users in the given list
+        watching_sims_with_users = []
+
+        if len(existing_users) == 0:
+            return watching_sims_with_users
+
+        for watching_sim in self.__watching_sims.values():
+            has_all_users = True
+
+            for user in existing_users:
+                if user not in watching_sim.users:
+                    has_all_users = False
+                    break
+
+            if has_all_users and watching_sim not in watching_sims_with_users:
+                watching_sims_with_users.append(watching_sim)
+
+        return watching_sims_with_users
+
+    def get_watching_sims_with_no_users(self) -> List[MovieWatchingSimulation]:
+        return [watching_sim for watching_sim in self.__watching_sims.values() if len(list(watching_sim.users)) == 0]
 
     def load_movie_dataset(self):
         if self.__movie_file_csv_reader is not None:
@@ -271,7 +312,11 @@ class MemoryRepository(AbstractRepository):
                 self.add_watchlist(watchlist)
 
     def load_activity_simulations(self):
-        pass
+        if self.__watching_sim_file_csv_reader is not None:
+            self.__watching_sim_file_csv_reader.read_csv_file()
+
+            for watching_sim in self.__watching_sim_file_csv_reader.dataset_of_watching_sims:
+                self.add_watching_sim(watching_sim)
 
     def populate(self, data_path_dict):
         super().populate(data_path_dict)
@@ -286,7 +331,9 @@ class MemoryRepository(AbstractRepository):
         self.load_reviews()
 
         self.set_watchlist_file_csv_reader(
-            WatchListFileCSVReader(data_path_dict["watchlists"], self.__movies, self.__users))
+            WatchListFileCSVReader(data_path_dict["watch_lists"], self.__movies, self.__users))
         self.load_watch_lists()
 
+        self.set_watching_sim_file_csv_reader(
+            WatchingSimFileCSVReader(data_path_dict["watching_sims"], self.__movies, self.__users, self.__reviews))
         self.load_activity_simulations()
