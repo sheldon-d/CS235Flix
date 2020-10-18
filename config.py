@@ -17,7 +17,11 @@ class DataPaths:
     TEST_DATA_BASE_PATH = Path.cwd().joinpath('tests', 'data')
 
     PROD_DATA_PATHS = {
-        "movies": str(PROD_DATA_BASE_PATH.joinpath('Data1000Movies.csv'))
+        "movies": str(PROD_DATA_BASE_PATH.joinpath('Data1000Movies.csv')),
+        "users": str(PROD_DATA_BASE_PATH.joinpath('users.csv')),
+        "reviews": str(PROD_DATA_BASE_PATH.joinpath('reviews.csv')),
+        "watch_lists": str(PROD_DATA_BASE_PATH.joinpath('watch_lists.csv')),
+        "watching_sims": str(PROD_DATA_BASE_PATH.joinpath('watching_sims.csv'))
     }
 
     TEST_DATA_PATHS = {

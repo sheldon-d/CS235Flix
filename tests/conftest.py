@@ -32,14 +32,21 @@ def dataset_of_movies(movie_file_reader):
 
 
 @pytest.fixture()
+def dict_of_movies(movie_file_reader):
+    movie_file_reader.read_csv_file()
+    dataset_of_movies = {movie.rank: movie for movie in list(movie_file_reader.dataset_of_movies)}
+    return dataset_of_movies
+
+
+@pytest.fixture()
 def dataset_of_actors(movie_file_reader):
     movie_file_reader.read_csv_file()
     return list(movie_file_reader.dataset_of_actors)
 
 
 @pytest.fixture()
-def user_file_reader(dataset_of_movies):
-    return UserFileCSVReader(test_data["users"], dataset_of_movies)
+def user_file_reader(dict_of_movies):
+    return UserFileCSVReader(test_data["users"], dict_of_movies)
 
 
 @pytest.fixture()
@@ -49,8 +56,8 @@ def dataset_of_users(user_file_reader):
 
 
 @pytest.fixture()
-def review_file_reader(dataset_of_movies, dataset_of_users):
-    return ReviewFileCSVReader(test_data["reviews"], dataset_of_movies, dataset_of_users)
+def review_file_reader(dict_of_movies, dataset_of_users):
+    return ReviewFileCSVReader(test_data["reviews"], dict_of_movies, dataset_of_users)
 
 
 @pytest.fixture()
@@ -61,13 +68,13 @@ def dataset_of_reviews(review_file_reader):
 
 
 @pytest.fixture()
-def watchlist_file_reader(dataset_of_movies, dataset_of_users):
-    return WatchListFileCSVReader(test_data["watch_lists"], dataset_of_movies, dataset_of_users)
+def watchlist_file_reader(dict_of_movies, dataset_of_users):
+    return WatchListFileCSVReader(test_data["watch_lists"], dict_of_movies, dataset_of_users)
 
 
 @pytest.fixture()
-def watching_sim_file_reader(dataset_of_movies, dataset_of_users, dataset_of_reviews):
-    return WatchingSimFileCSVReader(test_data["watching_sims"], dataset_of_movies, dataset_of_users, dataset_of_reviews)
+def watching_sim_file_reader(dict_of_movies, dataset_of_users, dataset_of_reviews):
+    return WatchingSimFileCSVReader(test_data["watching_sims"], dict_of_movies, dataset_of_users, dataset_of_reviews)
 
 
 @pytest.fixture()

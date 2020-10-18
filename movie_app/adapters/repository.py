@@ -79,10 +79,23 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_number_of_movies(self) -> int:
+        """ Returns the number of Movies in the repository. """
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def get_movie_by_rank(self, rank: int) -> Movie:
         """ Returns the Movie with the given rank from this repository.
 
         If there is no Movie with the given rank, this method returns None.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_movies_by_rank(self, rank_list: List[int]) -> List[Movie]:
+        """ Returns a list of Movies with ranks that match those in the given list, from this repository.
+
+        If there are no Movies with the given ranks, this method returns an empty list.
         """
         raise NotImplementedError
 

@@ -8,14 +8,14 @@ from movie_app.domainmodel import Movie, User, Review
 
 class WatchingSimFileCSVReader:
 
-    def __init__(self, file_name: str, movies: List[Movie], users: List[User], reviews: Dict[int, Review]):
+    def __init__(self, file_name: str, movies: Dict[int, Movie], users: List[User], reviews: Dict[int, Review]):
         if isinstance(file_name, str) and Path(file_name).exists() and '.csv' in file_name:
             self.__file_name = file_name
         else:
             self.__file_name = None
 
         self.__dataset_of_watching_sims: List[MovieWatchingSimulation] = list()
-        self.__dataset_of_movies: List[Movie] = movies
+        self.__dataset_of_movies: Dict[int, Movie] = movies
         self.__dataset_of_users: List[User] = users
         self.__dataset_of_reviews: Dict[int, Review] = reviews
 
@@ -38,8 +38,9 @@ class WatchingSimFileCSVReader:
                 except ValueError:
                     movie_rank = None
 
-                watching_sim_movie = next((movie for movie in self.__dataset_of_movies
-                                           if movie.rank == movie_rank), None)
+                watching_sim_movie = None
+                if movie_rank in self.__dataset_of_movies.keys():
+                    watching_sim_movie = self.__dataset_of_movies[movie_rank]
 
                 if watching_sim_movie is not None:
                     watching_simulation = MovieWatchingSimulation(watching_sim_movie)

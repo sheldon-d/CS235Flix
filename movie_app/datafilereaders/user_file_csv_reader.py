@@ -1,5 +1,5 @@
 import csv
-from typing import List, Iterable
+from typing import List, Dict, Iterable
 from pathlib import Path
 
 from movie_app.domainmodel import User, Movie
@@ -7,14 +7,14 @@ from movie_app.domainmodel import User, Movie
 
 class UserFileCSVReader:
 
-    def __init__(self, file_name: str, movies: List[Movie]):
+    def __init__(self, file_name: str, movies: Dict[int, Movie]):
         if isinstance(file_name, str) and Path(file_name).exists() and '.csv' in file_name:
             self.__file_name = file_name
         else:
             self.__file_name = None
 
         self.__dataset_of_users: List[User] = list()
-        self.__dataset_of_movies: List[Movie] = movies
+        self.__dataset_of_movies: Dict[int, Movie] = movies
 
     @property
     def file_name(self) -> str:
@@ -38,9 +38,10 @@ class UserFileCSVReader:
                 for val in row['Watched Movie Ranks'].split(','):
                     try:
                         movie_rank = int(val)
-                        watched_movie = next((movie for movie in self.__dataset_of_movies
-                                              if movie.rank == movie_rank), None)
-                        user.watch_movie(watched_movie)
+
+                        if movie_rank in self.__dataset_of_movies.keys():
+                            watched_movie = self.__dataset_of_movies[movie_rank]
+                            user.watch_movie(watched_movie)
                     except ValueError:
                         pass    # Ignore exception and don't add movie to watched movies
 

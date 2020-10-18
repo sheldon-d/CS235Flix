@@ -13,7 +13,7 @@ class MemoryRepository(AbstractRepository):
         self.__actors: List[Actor] = list()
         self.__directors: List[Director] = list()
         self.__genres: List[Genre] = list()
-        self.__movies: List[Movie] = list()
+        self.__movies: Dict[int, Movie] = dict()
         self.__reviews: Dict[int, Review] = dict()
         self.__users: List[User] = list()
         self.__watch_lists: List[WatchList] = list()
@@ -74,21 +74,37 @@ class MemoryRepository(AbstractRepository):
 
     def add_movie(self, movie: Movie):
         super().add_movie(movie)
-        if movie not in self.__movies:
-            self.__movies.append(movie)
+        if movie.rank not in self.__movies.keys() and movie not in self.__movies.values():
+            self.__movies[movie.rank] = movie
 
     def get_movie(self, title: str, release_year: int) -> Movie:
-        return next((movie for movie in self.__movies
+        return next((movie for movie in self.__movies.values()
                      if movie.title == title and movie.release_year == release_year), None)
 
+    def get_number_of_movies(self) -> int:
+        return len(self.__movies)
+
     def get_movie_by_rank(self, rank: int) -> Movie:
-        return next((movie for movie in self.__movies if movie.rank == rank), None)
+        movie = None
+
+        if rank in self.__movies.keys():
+            movie = self.__movies[rank]
+
+        return movie
+
+    def get_movies_by_rank(self, rank_list: List[int]) -> List[Movie]:
+        # Only include Movie ranks which are in this repository.
+        existing_ranks = [rank for rank in rank_list if rank in self.__movies.keys()]
+
+        # Fetch the Movies with the given ranks
+        movies_with_ranks = [self.__movies[rank] for rank in existing_ranks]
+        return movies_with_ranks
 
     def get_movies_by_release_year(self, release_year: int) -> List[Movie]:
-        return [movie for movie in self.__movies if movie.release_year == release_year]
+        return [movie for movie in self.__movies.values() if movie.release_year == release_year]
 
     def get_movies_by_director(self, director: Director) -> List[Movie]:
-        return [movie for movie in self.__movies if movie.director == director]
+        return [movie for movie in self.__movies.values() if movie.director == director]
 
     def get_movies_by_actors(self, actor_list: List[Actor]) -> List[Movie]:
         # Only include Actors which are in this repository
@@ -100,7 +116,7 @@ class MemoryRepository(AbstractRepository):
         if len(existing_actors) == 0:
             return movies_with_actors
 
-        for movie in self.__movies:
+        for movie in self.__movies.values():
             has_all_actors = True
 
             for actor in existing_actors:
@@ -123,7 +139,7 @@ class MemoryRepository(AbstractRepository):
         if len(existing_genres) == 0:
             return movies_with_genres
 
-        for movie in self.__movies:
+        for movie in self.__movies.values():
             has_all_genres = True
 
             for genre in existing_genres:
@@ -138,7 +154,7 @@ class MemoryRepository(AbstractRepository):
 
     def add_review(self, review: Review):
         super().add_review(review)
-        if review.movie not in self.__movies:
+        if review.movie not in self.__movies.values():
             raise RepositoryException(f'Movie {review.movie} for Review is not in the repository')
         if review.id not in self.__reviews.keys() and review not in self.__reviews.values():
             self.__reviews[review.id] = review
@@ -152,7 +168,8 @@ class MemoryRepository(AbstractRepository):
         return review
 
     def get_reviews_for_movie(self, movie: Movie) -> List[Review]:
-        return [review for review in self.__reviews.values() if review.movie == movie and movie in self.__movies]
+        return [review for review in self.__reviews.values() if review.movie == movie and
+                movie in self.__movies.values()]
 
     def add_user(self, user: User):
         super().add_user(user)
@@ -166,12 +183,12 @@ class MemoryRepository(AbstractRepository):
         return next((user for user in self.__users if user.id == user_id), None)
 
     def get_users_watched_movie(self, movie: Movie) -> List[User]:
-        return [user for user in self.__users if movie in user.watched_movies and movie in self.__movies]
+        return [user for user in self.__users if movie in user.watched_movies and movie in self.__movies.values()]
 
     def add_watchlist(self, watchlist: WatchList):
         super().add_watchlist(watchlist)
         for movie in watchlist:
-            if movie not in self.__movies:
+            if movie not in self.__movies.values():
                 raise RepositoryException(f'Movie {movie} in Watchlist is not in the repository')
 
         if watchlist not in self.__watch_lists:
@@ -222,7 +239,7 @@ class MemoryRepository(AbstractRepository):
 
     def add_watching_sim(self, watching_sim: MovieWatchingSimulation):
         super().add_watching_sim(watching_sim)
-        if watching_sim.movie not in self.__movies:
+        if watching_sim.movie not in self.__movies.values():
             raise RepositoryException(f'Movie {watching_sim.movie} for watching simulation is not in the repository')
 
         for user in watching_sim.users:
@@ -246,7 +263,7 @@ class MemoryRepository(AbstractRepository):
 
     def get_watching_sims_for_movie(self, movie: Movie) -> List[MovieWatchingSimulation]:
         return [watching_sim for watching_sim in self.__watching_sims.values() if watching_sim.movie == movie and
-                movie in self.__movies]
+                movie in self.__movies.values()]
 
     def get_watching_sims_by_users(self, user_list: List[User]) -> List[MovieWatchingSimulation]:
         # Only include Users which are in this repository

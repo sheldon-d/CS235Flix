@@ -1,5 +1,5 @@
 import csv
-from typing import List, Iterable
+from typing import List, Dict, Iterable
 from pathlib import Path
 
 from movie_app.domainmodel import Review, Movie, User
@@ -7,14 +7,14 @@ from movie_app.domainmodel import Review, Movie, User
 
 class ReviewFileCSVReader:
 
-    def __init__(self, file_name: str, movies: List[Movie], users: List[User]):
+    def __init__(self, file_name: str, movies: Dict[int, Movie], users: List[User]):
         if isinstance(file_name, str) and Path(file_name).exists() and '.csv' in file_name:
             self.__file_name = file_name
         else:
             self.__file_name = None
 
         self.__dataset_of_reviews: List[Review] = list()
-        self.__dataset_of_movies: List[Movie] = movies
+        self.__dataset_of_movies: Dict[int, Movie] = movies
         self.__dataset_of_users: List[User] = users
 
     @property
@@ -48,7 +48,10 @@ class ReviewFileCSVReader:
                 except ValueError:
                     rating = None
 
-                review_movie = next((movie for movie in self.__dataset_of_movies if movie.rank == movie_rank), None)
+                review_movie = None
+                if movie_rank in self.__dataset_of_movies.keys():
+                    review_movie = self.__dataset_of_movies[movie_rank]
+
                 review_user = next((user for user in self.__dataset_of_users if user.id == user_id), None)
 
                 review = Review(review_movie, review_text, rating)

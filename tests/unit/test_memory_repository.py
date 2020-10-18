@@ -118,6 +118,18 @@ def test_repository_can_get_movie(in_memory_repo):
     assert movie == Movie('Sing', 2016)
 
 
+def test_repository_can_get_movies_by_rank(in_memory_repo):
+    movie = in_memory_repo.get_movie_by_rank(3)
+    assert movie == Movie('Split', 2016)
+
+    movies = in_memory_repo.get_movies_by_rank([2, 8, 6])
+    assert len(movies) == 3
+
+    assert movies[0] == Movie('Prometheus', 2012)
+    assert movies[1] == Movie('Mindhorn', 2016)
+    assert movies[2] == Movie('The Great Wall', 2016)
+
+
 def test_repository_cannot_get_nonexistent_movie(in_memory_repo):
     movie = in_memory_repo.get_movie('Sing', 2010)
     assert movie is None
