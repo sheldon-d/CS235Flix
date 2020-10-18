@@ -483,3 +483,42 @@ def test_repository_can_get_watching_sims_with_no_users(in_memory_repo):
     watching_sims_with_no_users = in_memory_repo.get_watching_sims_with_no_users()
     assert len(watching_sims_with_no_users) == 1
     assert in_memory_repo.get_watching_sim(5) in watching_sims_with_no_users
+
+
+def test_repository_can_get_most_common_directors(in_memory_repo):
+    with pytest.raises(RepositoryException):
+        in_memory_repo.get_most_common_directors(0)
+    with pytest.raises(RepositoryException):
+        in_memory_repo.get_most_common_directors('')
+
+    most_common_directors = in_memory_repo.get_most_common_directors(1)
+    assert Director('James Gunn') in most_common_directors
+
+    most_common_directors = in_memory_repo.get_most_common_directors(11)
+    assert len(most_common_directors) == 10
+
+
+def test_repository_can_get_most_common_actors(in_memory_repo):
+    with pytest.raises(RepositoryException):
+        in_memory_repo.get_most_common_actors(0)
+    with pytest.raises(RepositoryException):
+        in_memory_repo.get_most_common_actors('')
+
+    most_common_actors = in_memory_repo.get_most_common_actors(1)
+    assert Actor('Chris Pratt') in most_common_actors
+
+    most_common_actors = in_memory_repo.get_most_common_actors(50)
+    assert len(most_common_actors) == sum(1 for _ in in_memory_repo.get_movie_file_csv_reader().dataset_of_actors)
+
+
+def test_repository_can_get_most_common_genres(in_memory_repo):
+    with pytest.raises(RepositoryException):
+        in_memory_repo.get_most_common_genres(0)
+    with pytest.raises(RepositoryException):
+        in_memory_repo.get_most_common_genres('')
+
+    most_common_genres = in_memory_repo.get_most_common_genres(1)
+    assert Genre('Adventure') in most_common_genres
+
+    most_common_genres = in_memory_repo.get_most_common_genres(20)
+    assert len(most_common_genres) == sum(1 for _ in in_memory_repo.get_movie_file_csv_reader().dataset_of_genres)

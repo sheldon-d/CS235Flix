@@ -11,8 +11,11 @@ class MemoryRepository(AbstractRepository):
 
     def __init__(self):
         self.__actors: List[Actor] = list()
+        self.__actors_count: Dict[Actor, int] = dict()
         self.__directors: List[Director] = list()
+        self.__directors_count: Dict[Director, int] = dict()
         self.__genres: List[Genre] = list()
+        self.__genres_count: Dict[Genre, int] = dict()
         self.__movies: Dict[int, Movie] = dict()
         self.__reviews: Dict[int, Review] = dict()
         self.__users: List[User] = list()
@@ -76,6 +79,23 @@ class MemoryRepository(AbstractRepository):
         super().add_movie(movie)
         if movie.rank not in self.__movies.keys() and movie not in self.__movies.values():
             self.__movies[movie.rank] = movie
+
+            if movie.director in self.__directors_count.keys():
+                self.__directors_count[movie.director] += 1
+            else:
+                self.__directors_count[movie.director] = 1
+
+            for actor in movie.actors:
+                if actor in self.__actors_count.keys():
+                    self.__actors_count[actor] += 1
+                else:
+                    self.__actors_count[actor] = 1
+
+            for genre in movie.genres:
+                if genre in self.__genres_count.keys():
+                    self.__genres_count[genre] += 1
+                else:
+                    self.__genres_count[genre] = 1
 
     def get_movie(self, title: str, release_year: int) -> Movie:
         return next((movie for movie in self.__movies.values()
@@ -151,6 +171,42 @@ class MemoryRepository(AbstractRepository):
                 movies_with_genres.append(movie)
 
         return movies_with_genres
+
+    def get_most_common_directors(self, quantity: int) -> List[Director]:
+        if not isinstance(quantity, int) or quantity <= 0:
+            raise RepositoryException('Number of most common Directors needs to be a positive integer value')
+
+        director_count = len(self.__directors_count)
+
+        if quantity > director_count:
+            quantity = director_count
+
+        most_common_directors = sorted(self.__directors_count, key=self.__directors_count.get, reverse=True)
+        return most_common_directors[0:quantity]
+
+    def get_most_common_actors(self, quantity: int) -> List[Actor]:
+        if not isinstance(quantity, int) or quantity <= 0:
+            raise RepositoryException('Number of most common Actors needs to be a positive integer value')
+
+        actor_count = len(self.__actors_count)
+
+        if quantity > actor_count:
+            quantity = actor_count
+
+        most_common_actors = sorted(self.__actors_count, key=self.__actors_count.get, reverse=True)
+        return most_common_actors[0:quantity]
+
+    def get_most_common_genres(self, quantity: int) -> List[Genre]:
+        if not isinstance(quantity, int) or quantity <= 0:
+            raise RepositoryException('Number of most common Genres needs to be a positive integer value')
+
+        genre_count = len(self.__genres_count)
+
+        if quantity > genre_count:
+            quantity = genre_count
+
+        most_common_genres = sorted(self.__genres_count, key=self.__genres_count.get, reverse=True)
+        return most_common_genres[0:quantity]
 
     def add_review(self, review: Review):
         super().add_review(review)

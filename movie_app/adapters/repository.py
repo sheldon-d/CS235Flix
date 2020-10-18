@@ -132,6 +132,21 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
+    def get_most_common_directors(self, quantity: int) -> List[Director]:
+        """ Returns the specified number of the most common Directors of Movies stored in the repository"""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_most_common_actors(self, quantity: int) -> List[Actor]:
+        """ Returns the specified number of the most common Actors in Movies stored in the repository"""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_most_common_genres(self, quantity: int) -> List[Genre]:
+        """ Returns the specified number of the most common Genres of Movies stored in the repository"""
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def add_review(self, review: Review):
         """ Adds a Review to the repository.
 
