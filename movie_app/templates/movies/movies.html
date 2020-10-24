@@ -31,11 +31,12 @@
         </table>
 
         <table>
-            {% if director_url != None %}
+            {% if director_urls != None %}
                 <tr>
                     <td><b>Director</b></td>
                     <td>
-                        <button class="btn-general" onclick="location.href='{{ director_url }}'">
+                        <button class="btn-general"
+                                onclick="location.href='{{ director_urls[movie.director.director_full_name] }}'">
                             {{ movie.director.director_full_name }}</button>
                     </td>
                 </tr>

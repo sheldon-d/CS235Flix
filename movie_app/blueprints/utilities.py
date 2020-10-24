@@ -1,7 +1,7 @@
 from flask import Blueprint, url_for
 
 import movie_app.adapters.repository as repo
-import movie_app.services.services as services
+import movie_app.services.movie_services as services
 from movie_app.domainmodel import Movie
 
 # Configure Blueprint
@@ -50,7 +50,7 @@ def get_genre_urls_for_movie(movie: Movie):
     genre_urls = dict()
     for genre in movie.genres:
         genre_urls[genre.genre_name] = url_for('movie_bp.movies_by_genres', genres=genre.genre_name)
-        
+
     return genre_urls
 
 

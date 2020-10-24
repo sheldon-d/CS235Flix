@@ -1,10 +1,13 @@
 <nav id="nav">
 
     <h2 id="nav-header">
-        Hello, (username)
+        {% if 'username' in session %} Welcome, {{ session['username'] }} {% endif %}
     </h2>
 
     <a class="btn-nav" href="{{ url_for('home_bp.home') }}">Home</a>
+    <a class="btn-nav" href="{{ url_for('authentication_bp.register') }}">Register</a>
+    <a class="btn-nav" href="{{ url_for('authentication_bp.login') }}">Login</a>
+    <a class="btn-nav" href="{{ url_for('authentication_bp.logout') }}">Logout</a>
 
     <div>
         <h3 class="nav-sub-header">Browse movies</h3>

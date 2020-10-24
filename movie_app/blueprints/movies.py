@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, request, url_for, sessio
 
 import movie_app.adapters.repository as repo
 import movie_app.blueprints.utilities as utilities
-import movie_app.services.services as services
+import movie_app.services.movie_services as services
 from movie_app.domainmodel import Genre
 
 # Configure Blueprint
