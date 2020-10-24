@@ -2,7 +2,36 @@
 {% block content %}
 
 <main id="main">
-    <p>Welcome!</p>
+    <h2>Browse by:</h2>
+    <table class="top-items">
+        <tr>
+            <td>
+                <ul class="movie-list">
+                    <li><b>Top {{ common_director_urls|length }} directors</b></li>
+                    {% for key in common_director_urls %}
+                        <li><a class="btn-nav" href=" {{ common_director_urls[key] }}">{{ key }}</a></li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <ul class="movie-list">
+                    <li><b>Top {{ common_actor_urls|length }} actors</b></li>
+                    {% for key in common_actor_urls %}
+                        <li><a class="btn-nav" href=" {{ common_actor_urls[key] }}">{{ key }}</a></li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                <ul class="movie-list">
+                    <li><b>Top {{ common_genre_urls|length }} genres</b></li>
+                    {% for key in common_genre_urls %}
+                        <li><a class="btn-nav" href=" {{ common_genre_urls[key] }}">{{ key }}</a></li>
+                    {% endfor %}
+                </ul>
+            </td>
+        </tr>
+    </table>
+
 </main>
 
 {% endblock %}

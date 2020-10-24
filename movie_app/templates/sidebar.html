@@ -3,4 +3,13 @@
     <header>
         <h1>Your recommendations</h1>
     </header>
+
+    {% for movie in random_movies %}
+        <div id="movie-container">
+            <div id="movie-description">
+                <p>{{ movie.title }} ({{ movie.release_year }}).</p>
+            </div>
+        </div>
+    {% endfor %}
+    
 </aside>

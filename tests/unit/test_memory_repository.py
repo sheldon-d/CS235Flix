@@ -136,22 +136,26 @@ def test_repository_cannot_get_nonexistent_movie(in_memory_repo):
 
 
 def test_repository_can_get_movies_by_release_year(in_memory_repo):
-    movies = in_memory_repo.get_movies_by_release_year(2016)
+    movie_ranks = in_memory_repo.get_movie_ranks_by_release_year(2016)
+    movies = in_memory_repo.get_movies_by_rank(movie_ranks)
     assert Movie('Passengers', 2016) in movies
     assert Movie('La La Land', 2016) in movies
     assert len(movies) == 8
 
-    movies = in_memory_repo.get_movies_by_release_year(2010)
+    movie_ranks = in_memory_repo.get_movie_ranks_by_release_year(2010)
+    movies = in_memory_repo.get_movies_by_rank(movie_ranks)
     assert len(movies) == 0
 
 
 def test_repository_can_get_movies_by_director(in_memory_repo):
-    movies = in_memory_repo.get_movies_by_director(Director('James Gunn'))
+    movie_ranks = in_memory_repo.get_movie_ranks_by_director(Director('James Gunn'))
+    movies = in_memory_repo.get_movies_by_rank(movie_ranks)
     assert Movie('Guardians of the Galaxy', 2014) in movies
     assert Movie('Slither', 2006) in movies
     assert len(movies) == 2
 
-    movies = in_memory_repo.get_movies_by_director(Director('John Doe'))
+    movie_ranks = in_memory_repo.get_movie_ranks_by_director(Director('John Doe'))
+    movies = in_memory_repo.get_movies_by_rank(movie_ranks)
     assert len(movies) == 0
 
 
@@ -159,13 +163,15 @@ def test_repository_can_get_movies_with_actors(in_memory_repo):
     actor_names = 'Vin Diesel, Bradley Cooper, Zoe Saldana'
     actors = [Actor(name) for name in actor_names.split(',')]
 
-    movies_with_actors = in_memory_repo.get_movies_by_actors(actors)
+    movie_ranks = in_memory_repo.get_movie_ranks_by_actors(actors)
+    movies_with_actors = in_memory_repo.get_movies_by_rank(movie_ranks)
     assert Movie('Guardians of the Galaxy', 2014) in movies_with_actors
     assert len(movies_with_actors) == 1
 
     actors = [Actor('Chris Pratt')]
 
-    movies_with_actors = in_memory_repo.get_movies_by_actors(actors)
+    movie_ranks = in_memory_repo.get_movie_ranks_by_actors(actors)
+    movies_with_actors = in_memory_repo.get_movies_by_rank(movie_ranks)
     assert Movie('Guardians of the Galaxy', 2014) in movies_with_actors
     assert Movie('Passengers', 2016) in movies_with_actors
     assert len(movies_with_actors) == 2
@@ -173,7 +179,8 @@ def test_repository_can_get_movies_with_actors(in_memory_repo):
 
 def test_repository_cannot_get_movies_with_no_actors(in_memory_repo):
     actors = [0, Director('Bob'), 'hello']
-    movies_with_actors = in_memory_repo.get_movies_by_actors(actors)
+    movie_ranks = in_memory_repo.get_movie_ranks_by_actors(actors)
+    movies_with_actors = in_memory_repo.get_movies_by_rank(movie_ranks)
     assert len(movies_with_actors) == 0
 
 
@@ -181,14 +188,16 @@ def test_repository_can_get_movies_with_genres(in_memory_repo):
     genre_names = 'Action, Adventure, Fantasy'
     genres = [Genre(name) for name in genre_names.split(',')]
 
-    movies_with_genres = in_memory_repo.get_movies_by_genres(genres)
+    movie_ranks = in_memory_repo.get_movie_ranks_by_genres(genres)
+    movies_with_genres = in_memory_repo.get_movies_by_rank(movie_ranks)
     assert Movie('Suicide Squad', 2016) in movies_with_genres
     assert Movie('The Great Wall', 2016) in movies_with_genres
     assert len(movies_with_genres) == 2
 
     genres = [Genre('Horror')]
 
-    movies_with_genres = in_memory_repo.get_movies_by_genres(genres)
+    movie_ranks = in_memory_repo.get_movie_ranks_by_genres(genres)
+    movies_with_genres = in_memory_repo.get_movies_by_rank(movie_ranks)
     assert Movie('Split', 2016) in movies_with_genres
     assert Movie('Slither', 2006) in movies_with_genres
     assert len(movies_with_genres) == 2
@@ -196,7 +205,8 @@ def test_repository_can_get_movies_with_genres(in_memory_repo):
 
 def test_repository_cannot_get_movies_with_no_genres(in_memory_repo):
     genres = [0, Actor('Bob'), 'hello']
-    movies_with_genres = in_memory_repo.get_movies_by_genres(genres)
+    movie_ranks = in_memory_repo.get_movie_ranks_by_genres(genres)
+    movies_with_genres = in_memory_repo.get_movies_by_rank(movie_ranks)
     assert len(movies_with_genres) == 0
 
 

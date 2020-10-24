@@ -120,21 +120,21 @@ class MemoryRepository(AbstractRepository):
         movies_with_ranks = [self.__movies[rank] for rank in existing_ranks]
         return movies_with_ranks
 
-    def get_movies_by_release_year(self, release_year: int) -> List[Movie]:
-        return [movie for movie in self.__movies.values() if movie.release_year == release_year]
+    def get_movie_ranks_by_release_year(self, release_year: int) -> List[int]:
+        return [movie.rank for movie in self.__movies.values() if movie.release_year == release_year]
 
-    def get_movies_by_director(self, director: Director) -> List[Movie]:
-        return [movie for movie in self.__movies.values() if movie.director == director]
+    def get_movie_ranks_by_director(self, director: Director) -> List[int]:
+        return [movie.rank for movie in self.__movies.values() if movie.director == director]
 
-    def get_movies_by_actors(self, actor_list: List[Actor]) -> List[Movie]:
+    def get_movie_ranks_by_actors(self, actor_list: List[Actor]) -> List[int]:
         # Only include Actors which are in this repository
         existing_actors = [actor for actor in actor_list if actor in self.__actors]
 
         # Fetch the Movies which have all of the existing actors in the given list
-        movies_with_actors = []
+        movie_ranks: List[int] = list()
 
         if len(existing_actors) == 0:
-            return movies_with_actors
+            return movie_ranks
 
         for movie in self.__movies.values():
             has_all_actors = True
@@ -144,20 +144,20 @@ class MemoryRepository(AbstractRepository):
                     has_all_actors = False
                     break
 
-            if has_all_actors and movie not in movies_with_actors:
-                movies_with_actors.append(movie)
+            if has_all_actors and movie.rank not in movie_ranks:
+                movie_ranks.append(movie.rank)
 
-        return movies_with_actors
+        return movie_ranks
 
-    def get_movies_by_genres(self, genre_list: List[Genre]) -> List[Movie]:
+    def get_movie_ranks_by_genres(self, genre_list: List[Genre]) -> List[int]:
         # Only include Genres which are in this repository
         existing_genres = [genre for genre in genre_list if genre in self.__genres]
 
         # Fetch the Movies which have all of the existing genres in the given list
-        movies_with_genres = []
+        movie_ranks: List[int] = list()
 
         if len(existing_genres) == 0:
-            return movies_with_genres
+            return movie_ranks
 
         for movie in self.__movies.values():
             has_all_genres = True
@@ -167,10 +167,10 @@ class MemoryRepository(AbstractRepository):
                     has_all_genres = False
                     break
 
-            if has_all_genres and movie not in movies_with_genres:
-                movies_with_genres.append(movie)
+            if has_all_genres and movie.rank not in movie_ranks:
+                movie_ranks.append(movie.rank)
 
-        return movies_with_genres
+        return movie_ranks
 
     def get_most_common_directors(self, quantity: int) -> List[Director]:
         if not isinstance(quantity, int) or quantity <= 0:

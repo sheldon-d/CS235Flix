@@ -25,8 +25,12 @@ def create_app(test_config=None):
     repo.repo_instance = MemoryRepository()
     repo.repo_instance.populate(data_path_dict)
 
+    # Build the application
     with app.app_context():
-        from .blueprints import home
+        # Register blueprints
+        from .blueprints import home, movies, utilities
         app.register_blueprint(home.home_blueprint)
+        app.register_blueprint(movies.movie_blueprint)
+        app.register_blueprint(utilities.utilities_blueprint)
 
     return app

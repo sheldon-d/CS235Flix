@@ -100,32 +100,32 @@ class AbstractRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_movies_by_release_year(self, release_year: int) -> List[Movie]:
-        """ Returns a list of Movies with the given release year.
+    def get_movie_ranks_by_release_year(self, release_year: int) -> List[int]:
+        """ Returns a list of ranks for Movies with the given release year.
 
         If there are no Movies with the given release year, this method returns an empty list.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_movies_by_director(self, director: Director) -> List[Movie]:
-        """ Returns a list of Movies with the given Director.
+    def get_movie_ranks_by_director(self, director: Director) -> List[int]:
+        """ Returns a list of ranks for Movies with the given Director.
 
         If there are no Movies with the given Director, this method returns an empty list.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_movies_by_actors(self, actor_list: List[Actor]) -> List[Movie]:
-        """ Returns a list of Movies with all of the Actors in the given list.
+    def get_movie_ranks_by_actors(self, actor_list: List[Actor]) -> List[int]:
+        """ Returns a list of ranks for Movies with all of the Actors in the given list.
 
         If there are no Movies with all of the Actors in the given list, this method returns an empty list.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_movies_by_genres(self, genre_list: List[Genre]) -> List[Movie]:
-        """ Returns a list of Movies with all of the Genres in the given list.
+    def get_movie_ranks_by_genres(self, genre_list: List[Genre]) -> List[int]:
+        """ Returns a list of ranks for Movies with all of the Genres in the given list.
 
         If there are no Movies with all of the Genres in the given list, this method returns an empty list.
         """

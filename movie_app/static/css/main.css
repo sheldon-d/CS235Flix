@@ -64,6 +64,7 @@ h1 {
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   display: block;
+  margin-top: 10px;
 }
 
 .btn-nav:hover {
@@ -96,9 +97,78 @@ h1 {
 #footer {
   margin-top: 25px;
   margin-bottom: 20px;
-  position: absolute;
   bottom: 0;
   font-size: small;
   text-align: center;
   word-wrap: break-word;
+}
+
+.btn-general {
+    background-color: #d6f5f5;
+    border: none;
+    border-radius: 8px;
+    display: inline-block;
+    padding: 10px;
+    margin: 5px;
+    margin-top: 10px;
+    float:left;
+}
+
+.btn-general-disabled {
+    background-color: #4b4276;
+    border: none;
+    border-radius: 8px;
+    display: inline-block;
+    padding: 10px;
+    margin: 5px;
+    float:left;
+    #opacity: 0.6;
+}
+
+.btn-general:hover {
+    background-color: #ccf5ff;
+    color: black;
+}
+
+#movie-header {
+    text-align: left;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#movie {
+    clear:both;
+    padding-top:20px;
+    margin-bottom:40px;
+}
+
+#movie-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 30px;
+}
+
+table {
+  margin-top: 20px;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table.movie-info td,
+table.movie-info th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+.movie-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+table.top-items td {
+    text-align: center;
+    width: 33.333333%;
 }
