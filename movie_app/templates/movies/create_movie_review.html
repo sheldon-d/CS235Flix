@@ -1,0 +1,69 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+<main id="main">
+
+    <div style="clear:both">
+        <section id="movie">
+            <h2>{{movie.title}} ({{movie.release_year}}).</h2>
+            <p>{{movie.description}}</p>
+
+            <table class="movie-info">
+                <tr>
+                    <th>Runtime (minutes)</th>
+                    <th>External rating</th>
+                    <th>Number of rating votes</th>
+                    <th>Revenue (Millions)</th>
+                    <th>Metascore</th>
+                </tr>
+                <tr>
+                    <td>{{movie.runtime_minutes}}</td>
+                    <td>{{movie.external_rating}}</td>
+                    <td>{{movie.rating_votes}}</td>
+                    <td>{{movie.revenue_millions}}</td>
+                    <td>{{movie.metascore}}</td>
+                </tr>
+            </table>
+        </section>
+
+        <div class="form-wrapper">
+            <form action="{{handler_url}}" method="post">
+                {{form.movie_rank}} <!-- Need to include this hidden field as it tracks the Movie being reviewed. -->
+                {{form.csrf_token}} <!-- Need to include this token - Flask WTForms requires it. -->
+                <br>
+                <div class ="form-field">
+                    {{form.review_text.label}}
+                    {{form.review_text(size = 100, placeholder="Enter your review text", class="textarea",
+                    cols="50", rows="6", wrap="hard")}}
+                    {% if form.review_text.errors %}
+                        <ul class="errors">
+        	            {% for error in form.review_text.errors %}
+        		            <li>{{error}}</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-field">
+                    {{form.rating.label}}
+                    {{form.rating(size = 100, placeholder="Enter your rating",
+                    cols="50", rows="1", wrap="hard")}}
+                    {% if form.rating.errors %}
+                        <ul class="errors">
+        	            {% for error in form.rating.errors %}
+        		            <li>{{error}}</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                {{ form.submit }}
+            </form>
+        </div>
+        <div style="clear:both">
+            {% for review in movie.reviews %}
+                <p>Rating {{review.rating}}/10 - {{review.review_text}}, by {{review.user.user_name}},
+                    {{review.timestamp}}</p>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+{% endblock %}

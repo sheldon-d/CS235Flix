@@ -5,3 +5,4 @@ flask-wtf==0.14.3
 password-validator==1.0
 WTForms==2.3.3
 Werkzeug==1.0.1
+better-profanity==0.6.1

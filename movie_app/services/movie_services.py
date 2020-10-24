@@ -2,7 +2,7 @@ from typing import List
 import random
 
 from movie_app.adapters.repository import AbstractRepository
-from movie_app.domainmodel import Movie, Actor, Director, Genre
+from movie_app.domainmodel import Movie, Actor, Director, Genre, Review
 
 
 class ServicesException(Exception):
@@ -82,3 +82,33 @@ def get_random_movies(quantity: int, repo: AbstractRepository) -> List[Movie]:
     movies = repo.get_movies_by_rank(random_movie_ranks)
 
     return movies
+
+
+def create_review(movie_rank: int, review_text: str, rating: int, user_name: str, repo: AbstractRepository):
+    # Check that the Movie exists.
+    movie = repo.get_movie_by_rank(movie_rank)
+    if movie is None:
+        raise ServicesException('Movie does not exist in the repository')
+
+    # Check that the user exists.
+    user = repo.get_user(user_name)
+    if user is None:
+        raise ServicesException('User does not exist in the repository')
+
+    # Create review
+    review = Review(movie, review_text, rating)
+
+    # Add review to list of user reviews (and consequently to list of Movie reviews)
+    user.add_review(review)
+
+    # Update the repository with new Review.
+    repo.add_review(review)
+
+
+def get_reviews_for_movie(movie_rank: int, repo: AbstractRepository):
+    movie = repo.get_movie_by_rank(movie_rank)
+
+    if movie is None:
+        raise ServicesException('Movie does not exist in the repository')
+
+    return repo.get_reviews_for_movie(movie)
