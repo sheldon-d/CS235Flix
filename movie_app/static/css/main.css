@@ -27,6 +27,8 @@ h1 {
 
 #header {
   padding: 20px;
+  background: #fff;
+  border-bottom: 1px solid #e0e4e8;
   font-size: 64px;
   font-weight: bold;
   text-align: center;
@@ -218,4 +220,22 @@ input[type='submit']:hover {
 
 .form-wrapper {
     font-size: medium;
+}
+
+img {
+  display: block;
+  height: 400px;
+  width: auto;
+  padding: 15px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.img-small {
+    display: block;
+    height: 200px;
+    width: auto;
+    padding: 5px;
+    margin-left: auto;
+    margin-right:auto;
 }

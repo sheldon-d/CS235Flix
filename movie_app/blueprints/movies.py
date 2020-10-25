@@ -90,6 +90,7 @@ def movies_by_director():
     genre_urls = dict()
     view_review_urls = dict()
     add_review_urls = dict()
+    image_urls = dict()
 
     director_urls[director_full_name] = url_for('movie_bp.movies_by_director', director=director_full_name)
 
@@ -99,6 +100,7 @@ def movies_by_director():
         view_review_urls[movie.rank] = url_for('movie_bp.movies_by_director', director=director_full_name,
                                                cursor=cursor, view_reviews_for=movie.rank)
         add_review_urls[movie.rank] = url_for('movie_bp.create_movie_review', add_review_for=movie.rank)
+        image_urls[movie.rank] = utilities.get_image_url_for_movie(movie.title)
 
     if cursor > 0:
         # There are preceding Movies, so generate URLs for the 'previous' and 'first' navigation buttons.
@@ -131,7 +133,8 @@ def movies_by_director():
         genre_urls=genre_urls,
         view_review_urls=view_review_urls,
         add_review_urls=add_review_urls,
-        show_reviews_for_movie=movie_to_show_reviews
+        show_reviews_for_movie=movie_to_show_reviews,
+        image_urls=image_urls
     )
 
 
@@ -183,6 +186,7 @@ def movies_by_actors():
     genre_urls = dict()
     view_review_urls = dict()
     add_review_urls = dict()
+    image_urls = dict()
 
     for movie in movies:
         director_full_name = movie.director.director_full_name
@@ -192,6 +196,7 @@ def movies_by_actors():
         view_review_urls[movie.rank] = url_for('movie_bp.movies_by_actors', actors=actor_full_names_string,
                                                cursor=cursor, view_reviews_for=movie.rank)
         add_review_urls[movie.rank] = url_for('movie_bp.create_movie_review', add_review_for=movie.rank)
+        image_urls[movie.rank] = utilities.get_image_url_for_movie(movie.title)
 
     if cursor > 0:
         # There are preceding Movies, so generate URLs for the 'previous' and 'first' navigation buttons.
@@ -224,7 +229,8 @@ def movies_by_actors():
         genre_urls=genre_urls,
         view_review_urls=view_review_urls,
         add_review_urls=add_review_urls,
-        show_reviews_for_movie=movie_to_show_reviews
+        show_reviews_for_movie=movie_to_show_reviews,
+        image_urls=image_urls
     )
 
 
@@ -269,6 +275,7 @@ def movies_by_genres():
     genre_urls = dict()
     view_review_urls = dict()
     add_review_urls = dict()
+    image_urls = dict()
 
     for movie in movies:
         director_full_name = movie.director.director_full_name
@@ -278,6 +285,7 @@ def movies_by_genres():
         view_review_urls[movie.rank] = url_for('movie_bp.movies_by_genres', genres=genre_names_string,
                                                cursor=cursor, view_reviews_for=movie.rank)
         add_review_urls[movie.rank] = url_for('movie_bp.create_movie_review', add_review_for=movie.rank)
+        image_urls[movie.rank] = utilities.get_image_url_for_movie(movie.title)
 
     if cursor > 0:
         # There are preceding Movies, so generate URLs for the 'previous' and 'first' navigation buttons.
@@ -310,7 +318,8 @@ def movies_by_genres():
         genre_urls=genre_urls,
         view_review_urls=view_review_urls,
         add_review_urls=add_review_urls,
-        show_reviews_for_movie=movie_to_show_reviews
+        show_reviews_for_movie=movie_to_show_reviews,
+        image_urls=image_urls
     )
 
 
@@ -349,13 +358,29 @@ def create_movie_review():
         movie_rank = int(form.movie_rank.data)
 
     movie: Movie = services.get_movies_by_rank([movie_rank], repo.repo_instance)[0]
+
+    director_urls = dict()
+    actor_urls = dict()
+    genre_urls = dict()
+    image_urls = dict()
+
+    director_full_name = movie.director.director_full_name
+    director_urls[director_full_name] = url_for('movie_bp.movies_by_director', director=director_full_name)
+    actor_urls.update(utilities.get_actor_urls_for_movie(movie))
+    genre_urls.update(utilities.get_genre_urls_for_movie(movie))
+    image_urls[movie.rank] = utilities.get_image_url_for_movie(movie.title)
+
     return render_template(
         'movies/create_movie_review.html',
         title='Create review',
         movie=movie,
         form=form,
         handler_url=url_for('movie_bp.create_movie_review'),
-        random_movies=utilities.get_random_movies()
+        random_movies=utilities.get_random_movies(),
+        director_urls=director_urls,
+        actor_urls=actor_urls,
+        genre_urls=genre_urls,
+        image_urls=image_urls
     )
 
 

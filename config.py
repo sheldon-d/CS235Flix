@@ -9,6 +9,7 @@ class Config:
     FLASK_APP = environ.get('FLASK_APP')
     FLASK_ENV = environ.get('FLASK_ENV')
     SECRET_KEY = environ.get('SECRET_KEY')
+    OMDB_KEY = environ.get('OMDB_KEY')
 
 
 class DataPaths:
@@ -31,3 +32,4 @@ class DataPaths:
         "watch_lists": str(TEST_DATA_BASE_PATH.joinpath('watch_lists.csv')),
         "watching_sims": str(TEST_DATA_BASE_PATH.joinpath('watching_sims.csv'))
     }
+

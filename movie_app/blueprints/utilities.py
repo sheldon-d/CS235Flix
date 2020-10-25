@@ -1,8 +1,9 @@
 from flask import Blueprint, url_for
-
+import requests
 import movie_app.adapters.repository as repo
 import movie_app.services.movie_services as services
 from movie_app.domainmodel import Movie
+from config import Config
 
 # Configure Blueprint
 utilities_blueprint = Blueprint('utilities_bp', __name__)
@@ -56,4 +57,15 @@ def get_genre_urls_for_movie(movie: Movie):
 
 def get_random_movies(quantity=3):
     movies = services.get_random_movies(quantity, repo.repo_instance)
+    for movie in movies:
+        movie['img_url'] = get_image_url_for_movie(movie['title'])
+
     return movies
+
+
+def get_image_url_for_movie(movie_title: str):
+    url = f"http://www.omdbapi.com/?t={movie_title}&apikey={Config.OMDB_KEY}"
+    movie_info = requests.get(url).json()
+
+    if "Poster" in movie_info.keys():
+        return movie_info["Poster"]

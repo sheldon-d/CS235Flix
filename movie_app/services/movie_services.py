@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Iterable
 import random
 
 from movie_app.adapters.repository import AbstractRepository
@@ -24,7 +24,7 @@ def get_actor(actor_full_name: str, repo: AbstractRepository) -> Actor:
     return actor
 
 
-def get_movies_by_rank(rank_list: List[int], repo: AbstractRepository) -> List[Movie]:
+def get_movies_by_rank(rank_list: List[int], repo: AbstractRepository):
     movies = repo.get_movies_by_rank(rank_list)
     return movies
 
@@ -70,7 +70,7 @@ def get_most_common_genre_names(quantity: int, repo: AbstractRepository) -> List
     return genre_names
 
 
-def get_random_movies(quantity: int, repo: AbstractRepository) -> List[Movie]:
+def get_random_movies(quantity: int, repo: AbstractRepository):
     movie_count = repo.get_number_of_movies()
 
     if quantity >= movie_count:
@@ -81,7 +81,7 @@ def get_random_movies(quantity: int, repo: AbstractRepository) -> List[Movie]:
     random_movie_ranks = random.sample(range(1, movie_count), quantity)
     movies = repo.get_movies_by_rank(random_movie_ranks)
 
-    return movies
+    return movies_to_dict(movies)
 
 
 def create_review(movie_rank: int, review_text: str, rating: int, user_name: str, repo: AbstractRepository):
@@ -112,3 +112,16 @@ def get_reviews_for_movie(movie_rank: int, repo: AbstractRepository):
         raise ServicesException('Movie does not exist in the repository')
 
     return repo.get_reviews_for_movie(movie)
+
+
+def movie_to_dict(movie: Movie):
+    movie_dict = {
+        'title': movie.title,
+        'release_year': movie.release_year,
+        'description': movie.description
+    }
+    return movie_dict
+
+
+def movies_to_dict(movies: Iterable[Movie]):
+    return [movie_to_dict(movie) for movie in movies]

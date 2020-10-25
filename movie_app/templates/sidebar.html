@@ -6,9 +6,9 @@
 
     {% for movie in random_movies %}
         <div id="movie-container">
-            <div id="movie-description">
-                <p>{{ movie.title }} ({{ movie.release_year }}).</p>
-            </div>
+            <b><p>{{ movie['title'] }} ({{ movie['release_year'] }}).</p></b>
+            <img src={{movie['img_url']}} alt={{movie['title']}} class="img-small">
+            <p>{{ movie['description'] }}</p>
         </div>
     {% endfor %}
     
