@@ -91,6 +91,7 @@ def movies_by_director():
     genre_urls = dict()
     view_review_urls = dict()
     add_review_urls = dict()
+    add_watchlist_urls = dict()
     image_urls = dict()
 
     director_urls[director_full_name] = url_for('movie_bp.movies_by_director', director=director_full_name)
@@ -101,6 +102,7 @@ def movies_by_director():
         view_review_urls[movie.rank] = url_for('movie_bp.movies_by_director', director=director_full_name,
                                                cursor=cursor, view_reviews_for=movie.rank)
         add_review_urls[movie.rank] = url_for('movie_bp.create_movie_review', add_review_for=movie.rank)
+        add_watchlist_urls[movie.rank] = url_for('user_activity_bp.browse_watchlist', movie=movie.rank)
         image_urls[movie.rank] = utilities.get_image_url_for_movie(movie.title)
 
     if cursor > 0:
@@ -135,7 +137,8 @@ def movies_by_director():
         view_review_urls=view_review_urls,
         add_review_urls=add_review_urls,
         show_reviews_for_movie=movie_to_show_reviews,
-        image_urls=image_urls
+        image_urls=image_urls,
+        add_watchlist_urls=add_watchlist_urls
     )
 
 
@@ -187,6 +190,7 @@ def movies_by_actors():
     genre_urls = dict()
     view_review_urls = dict()
     add_review_urls = dict()
+    add_watchlist_urls = dict()
     image_urls = dict()
 
     for movie in movies:
@@ -197,6 +201,7 @@ def movies_by_actors():
         view_review_urls[movie.rank] = url_for('movie_bp.movies_by_actors', actors=actor_full_names_string,
                                                cursor=cursor, view_reviews_for=movie.rank)
         add_review_urls[movie.rank] = url_for('movie_bp.create_movie_review', add_review_for=movie.rank)
+        add_watchlist_urls[movie.rank] = url_for('user_activity_bp.browse_watchlist', movie=movie.rank)
         image_urls[movie.rank] = utilities.get_image_url_for_movie(movie.title)
 
     if cursor > 0:
@@ -231,7 +236,8 @@ def movies_by_actors():
         view_review_urls=view_review_urls,
         add_review_urls=add_review_urls,
         show_reviews_for_movie=movie_to_show_reviews,
-        image_urls=image_urls
+        image_urls=image_urls,
+        add_watchlist_urls=add_watchlist_urls
     )
 
 
@@ -276,6 +282,7 @@ def movies_by_genres():
     genre_urls = dict()
     view_review_urls = dict()
     add_review_urls = dict()
+    add_watchlist_urls = dict()
     image_urls = dict()
 
     for movie in movies:
@@ -286,6 +293,7 @@ def movies_by_genres():
         view_review_urls[movie.rank] = url_for('movie_bp.movies_by_genres', genres=genre_names_string,
                                                cursor=cursor, view_reviews_for=movie.rank)
         add_review_urls[movie.rank] = url_for('movie_bp.create_movie_review', add_review_for=movie.rank)
+        add_watchlist_urls[movie.rank] = url_for('user_activity_bp.browse_watchlist', movie=movie.rank)
         image_urls[movie.rank] = utilities.get_image_url_for_movie(movie.title)
 
     if cursor > 0:
@@ -320,7 +328,8 @@ def movies_by_genres():
         view_review_urls=view_review_urls,
         add_review_urls=add_review_urls,
         show_reviews_for_movie=movie_to_show_reviews,
-        image_urls=image_urls
+        image_urls=image_urls,
+        add_watchlist_urls=add_watchlist_urls
     )
 
 
