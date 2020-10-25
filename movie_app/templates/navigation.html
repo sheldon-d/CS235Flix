@@ -10,7 +10,11 @@
     <a class="btn-nav" href="{{ url_for('authentication_bp.logout') }}">Logout</a>
 
     <div>
-        <h3 class="nav-sub-header">Browse movies</h3>
+        <h3>
+            <a class="btn-nav" href="{{ url_for('movie_bp.search_for_movies') }}">
+                Search for movies
+            </a>
+        </h3>
     </div>
 
     <div>

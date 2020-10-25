@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template, redirect, request, url_for, session
+from flask import Blueprint, render_template, redirect, request, url_for, session, flash
 
 from better_profanity import profanity
 from flask_wtf import FlaskForm
-from wtforms import TextAreaField, IntegerField, HiddenField, SubmitField
+from wtforms import TextAreaField, IntegerField, HiddenField, SubmitField, SelectField, StringField
 from wtforms.validators import DataRequired, Length, ValidationError, NumberRange
 
 import movie_app.adapters.repository as repo
@@ -32,11 +32,18 @@ class ReviewForm(FlaskForm):
         DataRequired(),
         Length(min=4, message='Your review text is too short'),
         ProfanityFree(message='Your review text must not contain profanity')])
-    rating = IntegerField('Rating (1-10)', [
+    rating = IntegerField('Rating (1 to 10)', [
         DataRequired(),
         NumberRange(min=1, max=10, message='Rating must be between 1 and 10')])
     movie_rank = HiddenField("Movie rank")
     submit = SubmitField('Submit Review')
+
+
+class MovieSearchForm(FlaskForm):
+    choices = ['Director', 'Actor', 'Genre']
+    select = SelectField('Search for Movie by:', choices=choices)
+    search = StringField('')
+    submit = SubmitField('Search')
 
 
 @movie_blueprint.route('/movies_by_director', methods=['GET'])
@@ -63,7 +70,11 @@ def movies_by_director():
         cursor = 0
 
     # Retrieve Movie ranks for Movies with the given director.
-    director = services.get_director(director_full_name, repo.repo_instance)
+    try:
+        director = services.get_director(director_full_name, repo.repo_instance)
+    except services.ServicesException:
+        director = None
+
     movie_ranks = services.get_movie_ranks_by_director(director, repo.repo_instance)
 
     # Retrieve only a batch of Movies to display on the Web page
@@ -149,7 +160,14 @@ def movies_by_actors():
         cursor = 0
 
     # Retrieve Movie ranks for Movies with the given actors.
-    actors = [services.get_actor(name, repo.repo_instance) for name in actor_full_names]
+    actors = []
+
+    for name in actor_full_names:
+        try:
+            actors.append(services.get_actor(name, repo.repo_instance))
+        except services.ServicesException:
+            pass    # Ignore exception and do not add actor to list
+
     movie_ranks = services.get_movie_ranks_by_actors(actors, repo.repo_instance)
 
     # Retrieve only a batch of Movies to display on the Web page
@@ -337,5 +355,36 @@ def create_movie_review():
         movie=movie,
         form=form,
         handler_url=url_for('movie_bp.create_movie_review'),
-        random_movies=utilities.get_random_movies(),
+        random_movies=utilities.get_random_movies()
+    )
+
+
+@movie_blueprint.route('/search_for_movies', methods=['GET', 'POST'])
+def search_for_movies():
+    search_form = MovieSearchForm(request.form)
+
+    if request.method == 'POST':
+        choice = search_form.select.data.lower()
+
+        if 'director' in choice:
+            director_full_name = search_form.data['search']
+            return redirect(url_for('movie_bp.movies_by_director', director=director_full_name))
+
+        elif 'actor' in choice:
+            actor_full_names_string = '/'.join([name.strip() for name in search_form.data['search'].split(',')])
+            return redirect(url_for('movie_bp.movies_by_actors', actors=actor_full_names_string))
+
+        elif 'genre' in choice:
+            genre_names_string = '/'.join([name.strip() for name in search_form.data['search'].split(',')])
+            return redirect(url_for('movie_bp.movies_by_genres', genres=genre_names_string))
+
+        else:
+            flash('No movies found with the given attributes!')
+            return redirect('/search_for_movies')
+
+    return render_template(
+        'movies/search_for_movies.html',
+        form=search_form,
+        handler_url=url_for('movie_bp.search_for_movies'),
+        random_movies=utilities.get_random_movies()
     )

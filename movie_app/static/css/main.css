@@ -209,3 +209,13 @@ input[type='submit']:hover {
     color: black;
 }
 
+.textarea {
+    width: 100%;
+    display: inline-block;
+    overflow: auto;
+    word-break: break-all;
+}
+
+.form-wrapper {
+    font-size: medium;
+}
