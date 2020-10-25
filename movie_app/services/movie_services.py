@@ -105,6 +105,10 @@ def create_review(movie_rank: int, review_text: str, rating: int, user_name: str
     repo.add_review(review)
 
 
+def remove_review(review: Review):
+    review.user.remove_review(review)
+
+
 def get_reviews_for_movie(movie_rank: int, repo: AbstractRepository):
     movie = repo.get_movie_by_rank(movie_rank)
 

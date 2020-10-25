@@ -7,7 +7,7 @@
         <section id="movie">
             <h2>{{movie.title}} ({{movie.release_year}}).</h2>
             <p>{{movie.description}}</p>
-
+            <img src={{image_urls[movie.rank]}} alt={{movie.title}}>
             <table class="movie-info">
                 <tr>
                     <th>Runtime (minutes)</th>
@@ -25,6 +25,43 @@
                 </tr>
             </table>
         </section>
+
+        <table>
+            {% if director_urls != None %}
+                <tr>
+                    <td><b>Director</b></td>
+                    <td>
+                        <button class="btn-general"
+                                onclick="location.href='{{ director_urls[movie.director.director_full_name] }}'">
+                            {{ movie.director.director_full_name }}</button>
+                    </td>
+                </tr>
+            {% endif %}
+
+            {% if actor_urls != None %}
+                <tr>
+                    <td><b>Actors</b></td>
+                    <td>
+                        {% for actor in movie.actors %}
+                        <button class="btn-general" onclick="location.href='{{ actor_urls[actor.actor_full_name] }}'">
+                        {{ actor.actor_full_name }}</button>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
+
+            {% if genre_urls != None %}
+                <tr>
+                    <td><b>Genres</b></td>
+                    <td>
+                        {% for genre in movie.genres %}
+                        <button class="btn-general" onclick="location.href='{{ genre_urls[genre.genre_name] }}'">
+                        {{ genre.genre_name }}</button>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
+        </table>
 
         <div class="form-wrapper">
             <form action="{{handler_url}}" method="post">

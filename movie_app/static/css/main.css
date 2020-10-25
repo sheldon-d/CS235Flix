@@ -131,6 +131,11 @@ h1 {
     color: black;
 }
 
+.activity-header {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
 #movie-header {
     text-align: left;
     margin-top: 20px;

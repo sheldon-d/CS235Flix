@@ -9,16 +9,17 @@
     <a class="btn-nav" href="{{ url_for('authentication_bp.login') }}">Login</a>
     <a class="btn-nav" href="{{ url_for('authentication_bp.logout') }}">Logout</a>
 
+    {% if 'username' in session %}
+        <a class="btn-nav" href="{{ url_for('user_activity_bp.browse_reviews') }}">Browse reviews</a>
+        <a class="btn-nav" href="{{ url_for('user_activity_bp.browse_watchlist') }}">Browse watchlist</a>
+    {% endif %}
+
     <div>
         <h3>
             <a class="btn-nav" href="{{ url_for('movie_bp.search_for_movies') }}">
                 Search for movies
             </a>
         </h3>
-    </div>
-
-    <div>
-        <h3 class="nav-sub-header">Join watching simulation</h3>
     </div>
 
     <!-- Include footer partial -->

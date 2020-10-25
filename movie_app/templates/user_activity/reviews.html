@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<main id="main">
+    <header class="activity-header">
+        <h1>{{ title }}</h1>
+    </header>
+
+    <div style="clear:both">
+        <table>
+            {% for review in reviews %}
+            <tr>
+                <td>
+                    <p style="display:inline-block">
+                        Movie {{review.movie.title}} ({{review.movie.release_year}}). Rating {{review.rating}}/10 -
+                        {{review.review_text}}, {{review.timestamp}}
+                    </p>
+                </td>
+                <td>
+                    <button class="btn-general" onclick="location.href='{{ edit_review_urls[review.id] }}'">
+                    Edit Review</button>
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+</main>
+
+{% endblock %}

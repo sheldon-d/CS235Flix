@@ -28,10 +28,11 @@ def create_app(test_config=None):
     # Build the application
     with app.app_context():
         # Register blueprints
-        from .blueprints import home, movies, utilities, authentication
+        from .blueprints import home, movies, utilities, authentication, user_activity
         app.register_blueprint(home.home_blueprint)
         app.register_blueprint(movies.movie_blueprint)
         app.register_blueprint(utilities.utilities_blueprint)
         app.register_blueprint(authentication.authentication_blueprint)
+        app.register_blueprint(user_activity.user_activity_blueprint)
 
     return app

@@ -8,6 +8,7 @@ from wtforms.validators import DataRequired, Length, ValidationError, NumberRang
 import movie_app.adapters.repository as repo
 import movie_app.blueprints.utilities as utilities
 import movie_app.services.movie_services as services
+import movie_app.services.user_services as user_services
 from movie_app.domainmodel import Movie, Genre
 
 from movie_app.blueprints.authentication import login_required
@@ -169,7 +170,7 @@ def movies_by_actors():
         try:
             actors.append(services.get_actor(name, repo.repo_instance))
         except services.ServicesException:
-            pass    # Ignore exception and do not add actor to list
+            pass  # Ignore exception and do not add actor to list
 
     movie_ranks = services.get_movie_ranks_by_actors(actors, repo.repo_instance)
 
@@ -328,8 +329,20 @@ def movies_by_genres():
 def create_movie_review():
     # Obtain the username of the currently logged in user.
     username = session['username']
+    review_id = request.args.get('review')
 
     form = ReviewForm()
+
+    if review_id is not None:
+        try:
+            review_id = int(review_id)
+            review = user_services.get_review(review_id, repo.repo_instance)
+            form.movie_rank.data = review.movie.rank
+            form.review_text.data = review.review_text
+            form.rating.data = review.rating
+            services.remove_review(review)
+        except user_services.ServicesException:
+            pass    # Ignore exception and don't edit review
 
     if form.validate_on_submit():
         # Successful POST results if the review text and rating has passed data validation.

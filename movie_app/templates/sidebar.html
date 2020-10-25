@@ -6,7 +6,7 @@
 
     {% for movie in random_movies %}
         <div id="movie-container">
-            <b><p>{{ movie['title'] }} ({{ movie['release_year'] }}).</p></b>
+            <p><b>{{ movie['title'] }} ({{ movie['release_year'] }}).</b></p>
             <img src={{movie['img_url']}} alt={{movie['title']}} class="img-small">
             <p>{{ movie['description'] }}</p>
         </div>
