@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<main id="main">
+    <header id="activity-header">
+        <h1>{{ title }}</h1>
+    </header>
+
+    {% for movie in watchlist %}
+    <section id="movie">
+        <h2>{{movie.title}} ({{movie.release_year}}).</h2>
+        <p>{{movie.description}}</p>
+        <img src={{image_urls[movie.rank]}} alt={{movie.title}}>
+        <table class="movie-info">
+            <tr>
+                <th>Runtime (minutes)</th>
+                <th>External rating</th>
+                <th>Metascore</th>
+            </tr>
+            <tr>
+                <td>{{movie.runtime_minutes}}</td>
+                <td>{{movie.external_rating}}</td>
+                <td>{{movie.metascore}}</td>
+            </tr>
+        </table>
+
+        <table>
+            {% if director_urls != None %}
+                <tr>
+                    <td><b>Director</b></td>
+                    <td>
+                        <button class="btn-general"
+                                onclick="location.href='{{ director_urls[movie.director.director_full_name] }}'">
+                            {{ movie.director.director_full_name }}</button>
+                    </td>
+                </tr>
+            {% endif %}
+
+            {% if actor_urls != None %}
+                <tr>
+                    <td><b>Actors</b></td>
+                    <td>
+                        {% for actor in movie.actors %}
+                        <button class="btn-general" onclick="location.href='{{ actor_urls[actor.actor_full_name] }}'">
+                        {{ actor.actor_full_name }}</button>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
+
+            {% if genre_urls != None %}
+                <tr>
+                    <td><b>Genres</b></td>
+                    <td>
+                        {% for genre in movie.genres %}
+                        <button class="btn-general" onclick="location.href='{{ genre_urls[genre.genre_name] }}'">
+                        {{ genre.genre_name }}</button>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
+        </table>
+    </section>
+    {% endfor %}
+
+</main>
+
+{% endblock %}

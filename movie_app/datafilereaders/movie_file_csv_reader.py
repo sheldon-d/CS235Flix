@@ -1,39 +1,49 @@
 import csv
-from typing import List
-from domainmodel.movie import Movie
-from domainmodel.actor import Actor
-from domainmodel.genre import Genre
-from domainmodel.director import Director
+from typing import List, Iterable
+from pathlib import Path
+
+from movie_app.domainmodel.movie import Movie
+from movie_app.domainmodel.actor import Actor
+from movie_app.domainmodel.genre import Genre
+from movie_app.domainmodel.director import Director
 
 
 class MovieFileCSVReader:
 
     def __init__(self, file_name: str):
-        self.__file_name = file_name
-        self.__dataset_of_movies: List['Movie'] = list()
-        self.__dataset_of_actors: List['Actor'] = list()
-        self.__dataset_of_directors: List['Director'] = list()
-        self.__dataset_of_genres: List['Genre'] = list()
+        if isinstance(file_name, str) and Path(file_name).exists() and '.csv' in file_name:
+            self.__file_name = file_name
+        else:
+            self.__file_name = None
+
+        self.__dataset_of_movies: List[Movie] = list()
+        self.__dataset_of_actors: List[Actor] = list()
+        self.__dataset_of_directors: List[Director] = list()
+        self.__dataset_of_genres: List[Genre] = list()
 
     @property
-    def dataset_of_movies(self) -> List['Movie']:
-        return self.__dataset_of_movies
+    def file_name(self) -> str:
+        return self.__file_name
 
     @property
-    def dataset_of_actors(self) -> List['Actor']:
-        return self.__dataset_of_actors
+    def dataset_of_movies(self) -> Iterable[Movie]:
+        return iter(self.__dataset_of_movies)
 
     @property
-    def dataset_of_directors(self) -> List['Director']:
-        return self.__dataset_of_directors
+    def dataset_of_actors(self) -> Iterable[Actor]:
+        return iter(self.__dataset_of_actors)
 
     @property
-    def dataset_of_genres(self) -> List['Genre']:
-        return self.__dataset_of_genres
+    def dataset_of_directors(self) -> Iterable[Director]:
+        return iter(self.__dataset_of_directors)
+
+    @property
+    def dataset_of_genres(self) -> Iterable[Genre]:
+        return iter(self.__dataset_of_genres)
 
     def read_csv_file(self):
-        with open(self.__file_name, mode='r', encoding='utf-8-sig') as csvfile:
-            movie_file_reader = csv.DictReader(csvfile)
+        with open(self.__file_name, mode='r', encoding='utf-8-sig') as csv_file:
+            movie_file_reader = csv.DictReader(csv_file)
 
             for row in movie_file_reader:
                 title = row['Title']
@@ -42,6 +52,11 @@ class MovieFileCSVReader:
                     release_year = int(row['Year'])
                 except ValueError:
                     release_year = None
+
+                try:
+                    rank = int(row['Rank'])
+                except ValueError:
+                    rank = None
 
                 description = row['Description']
                 director = Director(row['Director'])
@@ -74,6 +89,7 @@ class MovieFileCSVReader:
                     metascore = None
 
                 movie = Movie(title, release_year)
+                movie.rank = rank
                 movie.description = description
                 movie.director = director
                 movie.runtime_minutes = runtime_minutes
@@ -83,9 +99,17 @@ class MovieFileCSVReader:
                 movie.metascore = metascore
 
                 for actor in actors:
-                    movie.add_actor(actor)
+                    colleagues = [c for c in actors if not actor.check_if_this_actor_worked_with(c) and c is not actor]
+
                     if actor not in self.__dataset_of_actors and actor.actor_full_name is not None:
+                        for colleague in colleagues:
+                            actor.add_actor_colleague(colleague)
                         self.__dataset_of_actors.append(actor)
+                    elif actor in self.__dataset_of_actors:
+                        pos = self.__dataset_of_actors.index(actor)
+                        for colleague in colleagues:
+                            self.__dataset_of_actors[pos].add_actor_colleague(colleague)
+                    movie.add_actor(actor)
 
                 if director not in self.__dataset_of_directors and director.director_full_name is not None:
                     self.__dataset_of_directors.append(director)
@@ -95,4 +119,5 @@ class MovieFileCSVReader:
                     if genre not in self.__dataset_of_genres and genre.genre_name is not None:
                         self.__dataset_of_genres.append(genre)
 
-                self.__dataset_of_movies.append(movie)
+                if movie not in self.dataset_of_movies and movie.title is not None:
+                    self.__dataset_of_movies.append(movie)

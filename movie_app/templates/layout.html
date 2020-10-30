@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>CS235Flix</title>
+
+        <link rel="stylesheet" href="../static/css/main.css">
+    </head>
+    <body>
+        <div id="body">
+            <!-- Include navigation partial -->
+            {% include 'navigation.html' %}
+
+            <div id="content-2">
+                <!-- Include header partial -->
+                {% include 'header.html' %}
+
+                <div id="container">
+                    <!-- Main content block to be supplied by page -->
+                    {% block content %}
+                    {% endblock %}
+
+                    <!-- Include sidebar partial -->
+                    {% include 'sidebar.html' %}
+                </div>
+
+            </div>
+        </div>
+    </body>
+</html>

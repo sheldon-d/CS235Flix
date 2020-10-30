@@ -1,0 +1,27 @@
+<nav id="nav">
+
+    <h2 id="nav-header">
+        {% if 'username' in session %} Welcome, {{ session['username'] }} {% endif %}
+    </h2>
+
+    <a class="btn-nav" href="{{ url_for('home_bp.home') }}">Home</a>
+    <a class="btn-nav" href="{{ url_for('authentication_bp.register') }}">Register</a>
+    <a class="btn-nav" href="{{ url_for('authentication_bp.login') }}">Login</a>
+    <a class="btn-nav" href="{{ url_for('authentication_bp.logout') }}">Logout</a>
+
+    {% if 'username' in session %}
+        <a class="btn-nav" href="{{ url_for('user_activity_bp.browse_reviews') }}">Browse reviews</a>
+        <a class="btn-nav" href="{{ url_for('user_activity_bp.browse_watchlist') }}">Browse watchlist</a>
+    {% endif %}
+
+    <div>
+        <h3>
+            <a class="btn-nav" href="{{ url_for('movie_bp.search_for_movies') }}">
+                Search for movies
+            </a>
+        </h3>
+    </div>
+
+    <!-- Include footer partial -->
+    {% include 'footer.html' %}
+</nav>

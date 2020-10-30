@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<main id="main">
+    <header id="movie-header">
+        <h1>{{ movies_title }}</h1>
+    </header>
+
+    <!-- Include browsing navigation partial -->
+    {% include 'browsing_navigation.html' %}
+
+    {% for movie in movies %}
+    <section id="movie">
+        <h2>{{movie.title}} ({{movie.release_year}}).</h2>
+        <p>{{movie.description}}</p>
+        <img src={{image_urls[movie.rank]}} alt={{movie.title}}>
+        <table class="movie-info">
+            <tr>
+                <th>Runtime (minutes)</th>
+                <th>External rating</th>
+                <th>Number of rating votes</th>
+                <th>Revenue (Millions)</th>
+                <th>Metascore</th>
+            </tr>
+            <tr>
+                <td>{{movie.runtime_minutes}}</td>
+                <td>{{movie.external_rating}}</td>
+                <td>{{movie.rating_votes}}</td>
+                <td>{{movie.revenue_millions}}</td>
+                <td>{{movie.metascore}}</td>
+            </tr>
+        </table>
+
+        <table>
+            {% if director_urls != None %}
+                <tr>
+                    <td><b>Director</b></td>
+                    <td>
+                        <button class="btn-general"
+                                onclick="location.href='{{ director_urls[movie.director.director_full_name] }}'">
+                            {{ movie.director.director_full_name }}</button>
+                    </td>
+                </tr>
+            {% endif %}
+
+            {% if actor_urls != None %}
+                <tr>
+                    <td><b>Actors</b></td>
+                    <td>
+                        {% for actor in movie.actors %}
+                        <button class="btn-general" onclick="location.href='{{ actor_urls[actor.actor_full_name] }}'">
+                        {{ actor.actor_full_name }}</button>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
+
+            {% if genre_urls != None %}
+                <tr>
+                    <td><b>Genres</b></td>
+                    <td>
+                        {% for genre in movie.genres %}
+                        <button class="btn-general" onclick="location.href='{{ genre_urls[genre.genre_name] }}'">
+                        {{ genre.genre_name }}</button>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endif %}
+        </table>
+
+        <div style="float:right">
+            {% if movie.reviews|list|length > 0 and movie.rank != show_reviews_for_movie %}
+                <button class="btn-general" onclick="location.href='{{ view_review_urls[movie.rank] }}'">
+                    {{ movie.reviews|list|length }} reviews</button>
+            {% endif %}
+            <button class="btn-general" onclick="location.href='{{ add_review_urls[movie.rank] }}'">
+                Add Review</button>
+            {% if 'username' in session %}
+            <button class="btn-general" onclick="location.href='{{ add_watchlist_urls[movie.rank] }}'">
+                Add to Watchlist</button>
+            {% endif %}
+        </div>
+
+        {% if movie.rank == show_reviews_for_movie %}
+        <div style="clear:both">
+            {% for review in movie.reviews %}
+                <p>Rating {{review.rating}}/10 - {{review.review_text}}, by {{review.user.user_name}},
+                    {{review.timestamp}}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </section>
+    {% endfor %}
+
+    <!-- Include browsing navigation partial -->
+    {% include 'browsing_navigation.html' %}
+    
+</main>
+
+{% endblock %}

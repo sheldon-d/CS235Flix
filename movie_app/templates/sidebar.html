@@ -1,0 +1,15 @@
+<aside id="sidebar">
+
+    <header>
+        <h1>Your recommendations</h1>
+    </header>
+
+    {% for movie in random_movies %}
+        <div id="movie-container">
+            <p><b>{{ movie['title'] }} ({{ movie['release_year'] }}).</b></p>
+            <img src={{movie['img_url']}} alt={{movie['title']}} class="img-small">
+            <p>{{ movie['description'] }}</p>
+        </div>
+    {% endfor %}
+    
+</aside>

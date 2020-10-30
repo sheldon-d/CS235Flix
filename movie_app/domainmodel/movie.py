@@ -1,7 +1,8 @@
-from typing import List
-from domainmodel.genre import Genre
-from domainmodel.actor import Actor
-from domainmodel.director import Director
+from typing import List, Iterable
+from movie_app.domainmodel.genre import Genre
+from movie_app.domainmodel.actor import Actor
+from movie_app.domainmodel.director import Director
+from movie_app.domainmodel.review import Review
 
 
 class Movie:
@@ -17,15 +18,17 @@ class Movie:
         else:
             self.__release_year = None
 
+        self.__rank = None
         self.__description = None
-        self.__director: 'Director' = Director(str())
-        self.__actors: List['Actor'] = list()
-        self.__genres: List['Genre'] = list()
+        self.__director: Director = Director(str())
+        self.__actors: List[Actor] = list()
+        self.__genres: List[Genre] = list()
         self.__runtime_minutes = None
         self.__external_rating = None
         self.__rating_votes = None
         self.__revenue_millions = None
         self.__metascore = None
+        self.__reviews: List[Review] = list()
 
     @property
     def title(self) -> str:
@@ -34,6 +37,15 @@ class Movie:
     @property
     def release_year(self) -> int:
         return self.__release_year
+
+    @property
+    def rank(self) -> int:
+        return self.__rank
+
+    @rank.setter
+    def rank(self, rank: int):
+        if isinstance(rank, int) and rank > 0 and self.__rank is None:
+            self.__rank = rank
 
     @property
     def description(self) -> str:
@@ -45,21 +57,21 @@ class Movie:
             self.__description = description.strip()
 
     @property
-    def director(self) -> 'Director':
+    def director(self) -> Director:
         return self.__director
 
     @director.setter
-    def director(self, director: 'Director'):
+    def director(self, director: Director):
         if isinstance(director, Director):
             self.__director = director
 
     @property
-    def actors(self) -> List['Actor']:
-        return self.__actors
+    def actors(self) -> Iterable[Actor]:
+        return iter(self.__actors)
 
     @property
-    def genres(self) -> List['Genre']:
-        return self.__genres
+    def genres(self) -> Iterable[Genre]:
+        return iter(self.__genres)
 
     @property
     def runtime_minutes(self) -> int:
@@ -109,6 +121,10 @@ class Movie:
         if isinstance(metascore, int) and 0 <= metascore <= 100:
             self.__metascore = metascore
 
+    @property
+    def reviews(self) -> Iterable[Review]:
+        return iter(self.__reviews)
+
     def __repr__(self) -> str:
         return f"<Movie {self.__title}, {self.__release_year}>"
 
@@ -133,18 +149,27 @@ class Movie:
     def __hash__(self):
         return hash((self.__title, self.__release_year))
 
-    def add_actor(self, actor: 'Actor'):
+    def add_actor(self, actor: Actor):
         if isinstance(actor, Actor) and actor not in self.__actors and actor.actor_full_name is not None:
             self.__actors.append(actor)
 
-    def remove_actor(self, actor: 'Actor'):
+    def remove_actor(self, actor: Actor):
         if actor in self.__actors:
             self.__actors.remove(actor)
 
-    def add_genre(self, genre: 'Genre'):
+    def add_genre(self, genre: Genre):
         if isinstance(genre, Genre) and genre not in self.__genres and genre.genre_name is not None:
             self.__genres.append(genre)
 
-    def remove_genre(self, genre: 'Genre'):
+    def remove_genre(self, genre: Genre):
         if genre in self.__genres:
             self.__genres.remove(genre)
+
+    def add_review(self, review: Review):
+        if isinstance(review, Review) and review not in self.__reviews and \
+                review.movie is self and review.rating is not None and review.user is not None:
+            self.__reviews.append(review)
+
+    def remove_review(self, review: Review):
+        if review in self.__reviews:
+            self.__reviews.remove(review)
