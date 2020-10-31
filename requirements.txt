@@ -1,6 +1,8 @@
-pytest==6.1.1
-python-dotenv==0.14.0
+pytest==6.1.2
+python-dotenv==0.15.0
 Flask==1.1.2
+Flask-SQLAlchemy==2.4.4
+SQLAlchemy==1.3.20
 flask-wtf==0.14.3
 password-validator==1.0
 WTForms==2.3.3

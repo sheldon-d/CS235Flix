@@ -11,6 +11,13 @@ class Config:
     SECRET_KEY = environ.get('SECRET_KEY')
     OMDB_KEY = environ.get('OMDB_KEY')
 
+    # Database configuration
+    SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI')
+    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    REPOSITORY = environ.get('REPOSITORY')
+
 
 class DataPaths:
     APP_BASE_PATH = Path.cwd().joinpath('movie_app')
